@@ -4,6 +4,7 @@ using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Input;
+using Avalonia.Controls.Documents;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -45,6 +46,8 @@ namespace MarkdownViewer.Core.Implementations
                 QuoteElement quote => RenderQuote(quote),
                 ImageElement image => RenderImage(image),
                 LinkElement link => RenderLink(link),
+                TableElement table => RenderTable(table),
+                EmphasisElement emphasis => RenderEmphasis(emphasis),
                 _ => new TextBlock { Text = "Unsupported element" }
             };
 
@@ -76,6 +79,12 @@ namespace MarkdownViewer.Core.Implementations
                 case LinkElement link when control is Button btn:
                     UpdateLink(btn, link);
                     break;
+                case TableElement table when control is Grid grid:
+                    UpdateTable(grid, table);
+                    break;
+                case EmphasisElement emphasis when control is TextBlock textBlock:
+                    UpdateEmphasis(textBlock, emphasis);
+                    break;
             }
         }
 
@@ -96,12 +105,55 @@ namespace MarkdownViewer.Core.Implementations
         {
             var textBlock = new TextBlock
             {
-                Text = paragraph.Text,
                 FontFamily = _defaultFontFamily,
                 FontSize = _baseFontSize,
                 TextWrapping = TextWrapping.Wrap,
                 Margin = new Thickness(0, 0, 0, 10)
             };
+
+            if (paragraph.Inlines != null)
+            {
+                foreach (var inline in paragraph.Inlines)
+                {
+                    if (inline == null)
+                        continue;
+
+                    switch (inline)
+                    {
+                        case Elements.TextElement text:
+                            textBlock.Inlines?.Add(new Run { Text = text.Text ?? string.Empty });
+                            break;
+                        case EmphasisElement emphasis:
+                            if (emphasis.IsStrong)
+                            {
+                                var bold = new Bold
+                                {
+                                    Inlines = { new Run { Text = emphasis.Text ?? string.Empty } }
+                                };
+                                textBlock.Inlines?.Add(bold);
+                            }
+                            else
+                            {
+                                var italic = new Italic
+                                {
+                                    Inlines = { new Run { Text = emphasis.Text ?? string.Empty } }
+                                };
+                                textBlock.Inlines?.Add(italic);
+                            }
+                            break;
+                        case LinkElement link:
+                            var span = new Span
+                            {
+                                Foreground = new SolidColorBrush(Color.FromRgb(0, 122, 255)),
+                                TextDecorations = TextDecorations.Underline
+                            };
+                            span.Inlines?.Add(new Run { Text = link.Text ?? string.Empty });
+                            textBlock.Inlines?.Add(span);
+                            break;
+                    }
+                }
+            }
+
             return textBlock;
         }
 
@@ -130,7 +182,49 @@ namespace MarkdownViewer.Core.Implementations
 
         private void UpdateParagraph(TextBlock textBlock, ParagraphElement paragraph)
         {
-            textBlock.Text = paragraph.Text;
+            if (textBlock.Inlines == null)
+                return;
+
+            textBlock.Inlines.Clear();
+            foreach (var inline in paragraph.Inlines)
+            {
+                if (inline == null)
+                    continue;
+
+                switch (inline)
+                {
+                    case Elements.TextElement text:
+                        textBlock.Inlines.Add(new Run { Text = text.Text ?? string.Empty });
+                        break;
+                    case EmphasisElement emphasis:
+                        if (emphasis.IsStrong)
+                        {
+                            var bold = new Bold
+                            {
+                                Inlines = { new Run { Text = emphasis.Text ?? string.Empty } }
+                            };
+                            textBlock.Inlines.Add(bold);
+                        }
+                        else
+                        {
+                            var italic = new Italic
+                            {
+                                Inlines = { new Run { Text = emphasis.Text ?? string.Empty } }
+                            };
+                            textBlock.Inlines.Add(italic);
+                        }
+                        break;
+                    case LinkElement link:
+                        var span = new Span
+                        {
+                            Foreground = new SolidColorBrush(Color.FromRgb(0, 122, 255)),
+                            TextDecorations = TextDecorations.Underline
+                        };
+                        span.Inlines?.Add(new Run { Text = link.Text ?? string.Empty });
+                        textBlock.Inlines.Add(span);
+                        break;
+                }
+            }
         }
 
         private void UpdateCodeBlock(TextBox textBox, CodeBlockElement codeBlock)
@@ -155,27 +249,37 @@ namespace MarkdownViewer.Core.Implementations
         {
             var panel = new StackPanel { Spacing = 5, Margin = new Thickness(0, 0, 0, 10) };
 
-            foreach (var item in list.Items)
+            if (list.Items != null)
             {
-                var itemPanel = new StackPanel
+                foreach (var item in list.Items)
                 {
-                    Orientation = Orientation.Horizontal,
-                    Margin = new Thickness(item.Level * 20, 0, 0, 0)
-                };
+                    if (item == null)
+                        continue;
 
-                var bullet = new TextBlock
-                {
-                    Text = list.IsOrdered ? $"{list.Items.IndexOf(item) + 1}." : "•",
-                    Width = 20,
-                    TextAlignment = TextAlignment.Right,
-                    Margin = new Thickness(0, 0, 5, 0)
-                };
+                    var itemPanel = new StackPanel
+                    {
+                        Orientation = Orientation.Horizontal,
+                        Margin = new Thickness(item.Level * 20, 0, 0, 0)
+                    };
 
-                var content = new TextBlock { Text = item.Text, TextWrapping = TextWrapping.Wrap };
+                    var bullet = new TextBlock
+                    {
+                        Text = list.IsOrdered ? $"{list.Items.IndexOf(item) + 1}." : "•",
+                        Width = 20,
+                        TextAlignment = TextAlignment.Right,
+                        Margin = new Thickness(0, 0, 5, 0)
+                    };
 
-                itemPanel.Children.Add(bullet);
-                itemPanel.Children.Add(content);
-                panel.Children.Add(itemPanel);
+                    var content = new TextBlock
+                    {
+                        Text = item.Text ?? string.Empty,
+                        TextWrapping = TextWrapping.Wrap
+                    };
+
+                    itemPanel.Children?.Add(bullet);
+                    itemPanel.Children?.Add(content);
+                    panel.Children?.Add(itemPanel);
+                }
             }
 
             return panel;
@@ -218,29 +322,43 @@ namespace MarkdownViewer.Core.Implementations
 
         private Control RenderLink(LinkElement link)
         {
+            var run = new Run
+            {
+                Text = link.Text ?? string.Empty,
+                TextDecorations = TextDecorations.Underline,
+                Foreground = new SolidColorBrush(Color.FromRgb(0, 122, 255))
+            };
+
+            var textBlock = new TextBlock();
+            if (textBlock.Inlines != null)
+            {
+                textBlock.Inlines.Add(run);
+            }
+
             var button = new Button
             {
-                Content = new TextBlock
-                {
-                    Text = link.Text,
-                    TextDecorations = TextDecorations.Underline,
-                    Foreground = new SolidColorBrush(Color.FromRgb(0, 122, 255))
-                },
+                Content = textBlock,
                 Background = Brushes.Transparent,
                 BorderThickness = new Thickness(0),
                 Padding = new Thickness(0),
                 Cursor = new Cursor(StandardCursorType.Hand)
             };
 
-            button.Click += (s, e) => OnLinkClicked(link.Url);
+            button.Click += (s, e) => OnLinkClicked(link.Url ?? string.Empty);
             return button;
         }
 
         private void UpdateList(StackPanel panel, ListElement list)
         {
+            if (panel.Children == null || list.Items == null)
+                return;
+
             panel.Children.Clear();
             foreach (var item in list.Items)
             {
+                if (item == null)
+                    continue;
+
                 var itemPanel = new StackPanel
                 {
                     Orientation = Orientation.Horizontal,
@@ -255,10 +373,18 @@ namespace MarkdownViewer.Core.Implementations
                     Margin = new Thickness(0, 0, 5, 0)
                 };
 
-                var content = new TextBlock { Text = item.Text, TextWrapping = TextWrapping.Wrap };
+                var content = new TextBlock
+                {
+                    Text = item.Text ?? string.Empty,
+                    TextWrapping = TextWrapping.Wrap
+                };
 
-                itemPanel.Children.Add(bullet);
-                itemPanel.Children.Add(content);
+                if (itemPanel.Children != null)
+                {
+                    itemPanel.Children.Add(bullet);
+                    itemPanel.Children.Add(content);
+                }
+
                 panel.Children.Add(itemPanel);
             }
         }
@@ -278,14 +404,24 @@ namespace MarkdownViewer.Core.Implementations
 
         private void UpdateLink(Button btn, LinkElement link)
         {
-            if (btn.Content is TextBlock textBlock)
+            if (btn.Content is TextBlock textBlock && textBlock.Inlines != null)
             {
-                textBlock.Text = link.Text;
+                textBlock.Inlines.Clear();
+                var run = new Run
+                {
+                    Text = link.Text ?? string.Empty,
+                    TextDecorations = TextDecorations.Underline,
+                    Foreground = new SolidColorBrush(Color.FromRgb(0, 122, 255))
+                };
+                textBlock.Inlines.Add(run);
             }
         }
 
         private async void LoadImageAsync(Image img, string source)
         {
+            if (img == null)
+                return;
+
             try
             {
                 var imageData = await _imageCache.GetImageAsync(source);
@@ -302,8 +438,11 @@ namespace MarkdownViewer.Core.Implementations
             }
             catch (Exception ex)
             {
-                img.Source = CreateErrorPlaceholder("Error loading image");
-                _logger.LogError(ex, "Failed to load image from {Source}", source);
+                _logger.LogError(ex, "Error loading image from {Source}", source);
+                if (img != null)
+                {
+                    img.Source = CreateErrorPlaceholder($"Error: {ex.Message}");
+                }
             }
         }
 
@@ -337,6 +476,169 @@ namespace MarkdownViewer.Core.Implementations
         private void OnLinkClicked(string url)
         {
             LinkClicked?.Invoke(this, url);
+        }
+
+        private Control RenderTable(TableElement table)
+        {
+            var grid = new Grid { Margin = new Thickness(0, 0, 0, 10) };
+
+            // 添加列定义
+            for (int i = 0; i < table.Headers.Count; i++)
+            {
+                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
+            }
+
+            // 添加行定义
+            grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto }); // 表头行
+            foreach (var row in table.Rows)
+            {
+                grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            }
+
+            // 渲染表头
+            for (int col = 0; col < table.Headers.Count; col++)
+            {
+                var headerCell = new Border
+                {
+                    Child = new TextBlock
+                    {
+                        Text = table.Headers[col],
+                        FontWeight = FontWeight.Bold,
+                        Padding = new Thickness(5),
+                        TextWrapping = TextWrapping.Wrap
+                    },
+                    BorderBrush = new SolidColorBrush(Color.FromRgb(229, 229, 229)),
+                    BorderThickness = new Thickness(1),
+                    Background = new SolidColorBrush(Color.FromRgb(247, 247, 247))
+                };
+                Grid.SetRow(headerCell, 0);
+                Grid.SetColumn(headerCell, col);
+                grid.Children.Add(headerCell);
+            }
+
+            // 渲染数据行
+            for (int row = 0; row < table.Rows.Count; row++)
+            {
+                var rowData = table.Rows[row];
+                for (int col = 0; col < Math.Min(rowData.Count, table.Headers.Count); col++)
+                {
+                    var cell = new Border
+                    {
+                        Child = new TextBlock
+                        {
+                            Text = rowData[col],
+                            Padding = new Thickness(5),
+                            TextWrapping = TextWrapping.Wrap
+                        },
+                        BorderBrush = new SolidColorBrush(Color.FromRgb(229, 229, 229)),
+                        BorderThickness = new Thickness(1)
+                    };
+                    Grid.SetRow(cell, row + 1);
+                    Grid.SetColumn(cell, col);
+                    grid.Children.Add(cell);
+                }
+            }
+
+            return grid;
+        }
+
+        private void UpdateTable(Grid grid, TableElement table)
+        {
+            if (grid.Children == null)
+                return;
+
+            grid.Children.Clear();
+            grid.RowDefinitions.Clear();
+            grid.ColumnDefinitions.Clear();
+
+            // Add column definitions
+            foreach (var _ in table.Headers)
+            {
+                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
+            }
+
+            // Add header row
+            grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            for (int i = 0; i < table.Headers.Count; i++)
+            {
+                var header = table.Headers[i];
+                if (header == null)
+                    continue;
+
+                var headerCell = new TextBlock
+                {
+                    Text = header ?? string.Empty,
+                    FontWeight = FontWeight.Bold,
+                    Padding = new Thickness(5),
+                    Background = new SolidColorBrush(Color.FromRgb(245, 245, 245))
+                };
+                Grid.SetRow(headerCell, 0);
+                Grid.SetColumn(headerCell, i);
+                grid.Children.Add(headerCell);
+            }
+
+            // Add data rows
+            for (int rowIndex = 0; rowIndex < table.Rows.Count; rowIndex++)
+            {
+                var row = table.Rows[rowIndex];
+                if (row == null)
+                    continue;
+
+                grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+                for (int colIndex = 0; colIndex < row.Count; colIndex++)
+                {
+                    var cell = row[colIndex];
+                    var textBlock = new TextBlock
+                    {
+                        Text = cell ?? string.Empty,
+                        Padding = new Thickness(5)
+                    };
+                    Grid.SetRow(textBlock, rowIndex + 1);
+                    Grid.SetColumn(textBlock, colIndex);
+                    grid.Children.Add(textBlock);
+                }
+            }
+        }
+
+        private Control RenderEmphasis(EmphasisElement emphasis)
+        {
+            var textBlock = new TextBlock();
+            if (textBlock.Inlines != null)
+            {
+                if (emphasis.IsStrong)
+                {
+                    var bold = new Bold();
+                    bold.Inlines?.Add(new Run { Text = emphasis.Text ?? string.Empty });
+                    textBlock.Inlines.Add(bold);
+                }
+                else
+                {
+                    var italic = new Italic();
+                    italic.Inlines?.Add(new Run { Text = emphasis.Text ?? string.Empty });
+                    textBlock.Inlines.Add(italic);
+                }
+            }
+            return textBlock;
+        }
+
+        private void UpdateEmphasis(TextBlock textBlock, EmphasisElement emphasis)
+        {
+            if (textBlock.Inlines == null)
+                return;
+
+            textBlock.Inlines.Clear();
+            if (emphasis.IsStrong)
+            {
+                var bold = new Bold();
+                bold.Inlines?.Add(new Run { Text = emphasis.Text ?? string.Empty });
+                textBlock.Inlines.Add(bold);
+            }
+            else
+            {
+                var italic = new Italic();
+                italic.Inlines?.Add(new Run { Text = emphasis.Text ?? string.Empty });
+                textBlock.Inlines.Add(italic);
+            }
         }
     }
 }

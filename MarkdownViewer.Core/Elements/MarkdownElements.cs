@@ -11,13 +11,20 @@ namespace MarkdownViewer.Core.Elements
         ListItem,
         Quote,
         HorizontalRule,
-        Table
+        Table,
+        Emphasis,
+        Text
     }
 
     public abstract class MarkdownElement
     {
         public required string RawText { get; set; }
         public MarkdownElementType ElementType { get; set; }
+    }
+
+    public class TextElement : MarkdownElement
+    {
+        public required string Text { get; set; }
     }
 
     public class HeadingElement : MarkdownElement
@@ -29,6 +36,7 @@ namespace MarkdownViewer.Core.Elements
     public class ParagraphElement : MarkdownElement
     {
         public required string Text { get; set; }
+        public List<MarkdownElement> Inlines { get; set; } = new();
     }
 
     public class CodeBlockElement : MarkdownElement
@@ -74,5 +82,11 @@ namespace MarkdownViewer.Core.Elements
     {
         public List<string> Headers { get; set; } = new();
         public List<List<string>> Rows { get; set; } = new();
+    }
+
+    public class EmphasisElement : MarkdownElement
+    {
+        public required string Text { get; set; }
+        public bool IsStrong { get; set; }
     }
 }

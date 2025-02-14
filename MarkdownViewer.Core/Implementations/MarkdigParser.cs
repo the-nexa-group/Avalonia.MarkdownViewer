@@ -86,7 +86,7 @@ namespace MarkdownViewer.Core.Implementations
                         RawText = blockText,
                         ElementType = Elements.MarkdownElementType.Heading,
                         Level = heading.Level,
-                        Text = heading.Inline?.FirstChild?.ToString() ?? string.Empty
+                        Text = ProcessInlineElements(heading.Inline) ?? string.Empty
                     };
                     yield return element;
                 }
@@ -96,8 +96,80 @@ namespace MarkdownViewer.Core.Implementations
                     {
                         RawText = blockText,
                         ElementType = Elements.MarkdownElementType.Paragraph,
-                        Text = paragraph.Inline?.ToString() ?? string.Empty
+                        Text = string.Empty,
+                        Inlines = new List<MarkdownElement>()
                     };
+
+                    if (paragraph.Inline != null)
+                    {
+                        foreach (var inline in paragraph.Inline)
+                        {
+                            if (inline is LinkInline link)
+                            {
+                                if (link.IsImage)
+                                {
+                                    element.Inlines.Add(
+                                        new ImageElement
+                                        {
+                                            RawText = link.ToString() ?? string.Empty,
+                                            ElementType = Elements.MarkdownElementType.Image,
+                                            Source = link.Url ?? string.Empty,
+                                            Title = link.Title ?? string.Empty,
+                                            Alt = link.Label?.ToString() ?? string.Empty
+                                        }
+                                    );
+                                }
+                                else
+                                {
+                                    element.Inlines.Add(
+                                        new LinkElement
+                                        {
+                                            RawText = link.ToString() ?? string.Empty,
+                                            ElementType = Elements.MarkdownElementType.Link,
+                                            Text = ProcessInlineElements(link),
+                                            Url = link.Url ?? string.Empty,
+                                            Title = link.Title ?? string.Empty
+                                        }
+                                    );
+                                }
+                            }
+                            else if (inline is EmphasisInline emphasis)
+                            {
+                                element.Inlines.Add(
+                                    new EmphasisElement
+                                    {
+                                        RawText = emphasis.ToString() ?? string.Empty,
+                                        ElementType = Elements.MarkdownElementType.Emphasis,
+                                        Text = ProcessInlineElements(emphasis),
+                                        IsStrong = emphasis.DelimiterCount == 2
+                                    }
+                                );
+                            }
+                            else if (inline is LiteralInline literal)
+                            {
+                                element.Inlines.Add(
+                                    new TextElement
+                                    {
+                                        RawText = literal.ToString() ?? string.Empty,
+                                        ElementType = Elements.MarkdownElementType.Text,
+                                        Text = literal.Content.ToString()
+                                    }
+                                );
+                            }
+                            else
+                            {
+                                element.Inlines.Add(
+                                    new TextElement
+                                    {
+                                        RawText = inline.ToString() ?? string.Empty,
+                                        ElementType = Elements.MarkdownElementType.Text,
+                                        Text = ProcessInline(inline)
+                                    }
+                                );
+                            }
+                        }
+                    }
+
                     yield return element;
                 }
                 else if (block is CodeBlock codeBlock)
@@ -131,7 +203,10 @@ namespace MarkdownViewer.Core.Implementations
                                     var paragraph = listItem
                                         .Descendants<ParagraphBlock>()
                                         .FirstOrDefault();
-                                    text = paragraph?.Inline?.ToString() ?? string.Empty;
+                                    text =
+                                        paragraph?.Inline != null
+                                            ? ProcessInlineElements(paragraph.Inline)
+                                            : string.Empty;
                                 }
                                 return new ListItemElement
                                 {
@@ -176,7 +251,9 @@ namespace MarkdownViewer.Core.Implementations
                         Headers =
                             table.Count > 0 && table[0] is TableRow headerRow
                                 ? headerRow
-                                    .Select(cell => cell?.ToString()?.Trim() ?? string.Empty)
+                                    .Select(
+                                        cell => ProcessInlineElements(((ParagraphBlock)cell).Inline)
+                                    )
                                     .ToList()
                                 : new List<string>(),
                         Rows = table
@@ -185,7 +262,10 @@ namespace MarkdownViewer.Core.Implementations
                             .Select(
                                 row =>
                                     ((TableRow)row)
-                                        .Select(cell => cell?.ToString()?.Trim() ?? string.Empty)
+                                        .Select(
+                                            cell =>
+                                                ProcessInlineElements(((ParagraphBlock)cell).Inline)
+                                        )
                                         .ToList()
                             )
                             .ToList()
@@ -193,6 +273,41 @@ namespace MarkdownViewer.Core.Implementations
                     yield return element;
                 }
             }
+        }
+
+        private string GetCellContent(Block cell)
+        {
+            if (cell == null)
+                return string.Empty;
+
+            var paragraph = cell.Descendants<ParagraphBlock>().FirstOrDefault();
+            if (paragraph?.Inline == null)
+                return string.Empty;
+
+            return ProcessInlineElements(paragraph.Inline);
+        }
+
+        private string ProcessInlineElements(ContainerInline? container)
+        {
+            if (container == null) return string.Empty;
+            
+            var builder = new StringBuilder();
+            foreach (var inline in container)
+            {
+                builder.Append(ProcessInline(inline));
+            }
+            return builder.ToString();
+        }
+
+        private string ProcessInline(Inline inline)
+        {
+            return inline switch
+            {
+                LiteralInline literal => literal.Content.ToString() ?? string.Empty,
+                LinkInline link => link.Title ?? link.Url ?? string.Empty,
+                EmphasisInline emphasis => ProcessInlineElements(emphasis),
+                _ => inline.ToString() ?? string.Empty
+            };
         }
     }
 }

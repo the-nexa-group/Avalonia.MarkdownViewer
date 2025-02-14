@@ -66,10 +66,10 @@ public class Example
 
 ### 表格
 
-| 列 1 | 列 2 | 列 3 |
-|------|------|------|
-| A1   | B1   | C1   |
-| A2   | B2   | C2   |
+| 标题1 | 标题2 | 标题3 |
+|-------|-------|-------|
+| 普通文本 | **粗体文本** | `代码文本` |
+| [链接](http://example.com) | *斜体文本* | 其他内容 |
 ";
 
         MarkdownViewer.MarkdownText = sampleMarkdown;
