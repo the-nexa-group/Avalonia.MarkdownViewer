@@ -32,7 +32,48 @@ public partial class MainWindow : Window
     private void LoadSampleMarkdown()
     {
         const string sampleMarkdown =
-            @"# Markdown 查看器示例
+            @"# Markdown Viewer Sample
+
+## Basic Formatting
+
+This is a **bold** text example, this is an *italic* text.
+
+### List Example
+
+- Item 1
+- Item 2
+  - Subitem 2.1
+  - Subitem 2.2
+- Item 3
+
+### Code Example
+
+```csharp
+public class Example
+{
+    public void HelloWorld()
+    {
+        Console.WriteLine(""Hello, World!"");
+    }
+}
+```
+
+### Links and Images
+
+[Avalonia UI](https://avaloniaui.net/)
+
+![Avalonia Logo](https://avatars.githubusercontent.com/u/14075148?s=200&v=4)
+
+### Tables
+
+| Header1 | Header2 | Header3 |
+|---------|---------|---------|
+| Normal text | **Bold text** | `Code text` |
+| [Link](http://example.com) | *Italic text* | Other content |
+
+
+
+# Markdown 查看器示例
 
 ## 基本格式
 
@@ -70,6 +111,9 @@ public class Example
 |-------|-------|-------|
 | 普通文本 | **粗体文本** | `代码文本` |
 | [链接](http://example.com) | *斜体文本* | 其他内容 |
+
+
+
 ";
 
         MarkdownViewer.MarkdownText = sampleMarkdown;
