@@ -21,7 +21,11 @@ namespace MarkdownViewer.Core.Implementations
 
         public MarkdigParser()
         {
-            _pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
+            var settings = new MarkdownPipelineBuilder();
+            settings.UseAdvancedExtensions();
+            settings.EnableTrackTrivia();
+            settings.UsePreciseSourceLocation();
+            _pipeline = settings.Build();
         }
 
         public async IAsyncEnumerable<MarkdownElement> ParseStreamAsync(
@@ -330,6 +334,7 @@ namespace MarkdownViewer.Core.Implementations
                 LiteralInline literal => literal.Content.ToString() ?? string.Empty,
                 LinkInline link => link.Title ?? link.Url ?? string.Empty,
                 EmphasisInline emphasis => ProcessInlineElements(emphasis),
+                LineBreakInline => string.Empty,
                 _ => inline.ToString() ?? string.Empty
             };
         }

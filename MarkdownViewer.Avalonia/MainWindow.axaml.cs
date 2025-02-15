@@ -1,4 +1,7 @@
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Interactivity;
 using MarkdownViewer.Core.Implementations;
 using MarkdownViewer.Core.Services;
 using Microsoft.Extensions.Logging;
@@ -19,56 +22,90 @@ public partial class MainWindow : Window
         httpClient = new HttpClient();
         var logger = NullLogger<MemoryImageCache>.Instance;
         imageCache = new MemoryImageCache(httpClient, logger);
-        var renderer = new AvaloniaMarkdownRenderer(imageCache, NullLogger<AvaloniaMarkdownRenderer>.Instance);
+        var renderer = new AvaloniaMarkdownRenderer(
+            imageCache,
+            NullLogger<AvaloniaMarkdownRenderer>.Instance
+        );
         MarkdownViewer.Renderer = renderer;
+
+        // 设置初始示例文本
         LoadSampleMarkdown();
+
+        // 绑定窗口大小变更事件
+        PropertyChanged += MainWindow_PropertyChanged;
+    }
+
+    private void MainWindow_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+    {
+        if (e.Property == BoundsProperty)
+        {
+            UpdateLayout();
+        }
+    }
+
+    private void UpdateLayout()
+    {
+        var bounds = Bounds;
+        if (bounds.Width < bounds.Height * 1.2) // 当宽度小于高度的1.2倍时切换为上下布局
+        {
+            MainGrid.ColumnDefinitions.Clear();
+            MainGrid.RowDefinitions.Clear();
+
+            MainGrid.RowDefinitions.Add(new RowDefinition(GridLength.Star));
+            MainGrid.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
+            MainGrid.RowDefinitions.Add(new RowDefinition(GridLength.Star));
+
+            Grid.SetRow(MarkdownEditor, 0);
+            Grid.SetColumn(MarkdownEditor, 0);
+
+            var splitter = MainGrid.Children[1] as GridSplitter;
+            if (splitter != null)
+            {
+                Grid.SetRow(splitter, 1);
+                Grid.SetColumn(splitter, 0);
+                splitter.ResizeDirection = GridResizeDirection.Rows;
+            }
+
+            var scrollViewer = MainGrid.Children[2] as ScrollViewer;
+            if (scrollViewer != null)
+            {
+                Grid.SetRow(scrollViewer, 2);
+                Grid.SetColumn(scrollViewer, 0);
+            }
+        }
+        else // 切换为左右布局
+        {
+            MainGrid.RowDefinitions.Clear();
+            MainGrid.ColumnDefinitions.Clear();
+
+            MainGrid.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
+            MainGrid.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Auto));
+            MainGrid.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
+
+            Grid.SetRow(MarkdownEditor, 0);
+            Grid.SetColumn(MarkdownEditor, 0);
+
+            var splitter = MainGrid.Children[1] as GridSplitter;
+            if (splitter != null)
+            {
+                Grid.SetRow(splitter, 0);
+                Grid.SetColumn(splitter, 1);
+                splitter.ResizeDirection = GridResizeDirection.Columns;
+            }
+
+            var scrollViewer = MainGrid.Children[2] as ScrollViewer;
+            if (scrollViewer != null)
+            {
+                Grid.SetRow(scrollViewer, 0);
+                Grid.SetColumn(scrollViewer, 2);
+            }
+        }
     }
 
     private void LoadSampleMarkdown()
     {
         const string sampleMarkdown =
-            @"# Markdown Viewer Sample
-
-## Basic Formatting
-
-This is a **bold** text example, this is an *italic* text.
-
-### List Example
-
-- Item 1
-- Item 2
-  - Subitem 2.1
-  - Subitem 2.2
-- Item 3
-
-### Code Example
-
-```csharp
-public class Example
-{
-    public void HelloWorld()
-    {
-        Console.WriteLine(""Hello, World!"");
-    }
-}
-```
-
-### Links and Images
-
-Link: [Avalonia UI](https://avaloniaui.net/)
-
-Pic: ![Avalonia Logo](https://avatars.githubusercontent.com/u/14075148?s=200&v=4)
-
-### Tables
-
-| Header1 | Header2 | Header3 |
-|---------|---------|---------|
-| Normal text | **Bold text** | `Code text` |
-| [Link](http://example.com) | *Italic text* | Other content |
-
----
-
-# Markdown 查看器示例
+            @"# Markdown 编辑器示例
 
 ## 基本格式
 
@@ -89,7 +126,7 @@ public class Example
 {
     public void HelloWorld()
     {
-        Console.WriteLine(""Hello, World!"");
+        Console.WriteLine(""你好，世界！"");
     }
 }
 ```
@@ -106,9 +143,6 @@ public class Example
 |-------|-------|-------|
 | 普通文本 | **粗体文本** | `代码文本` |
 | [链接](http://example.com) | *斜体文本* | 其他内容 |
-
-
-
 ";
 
         MarkdownViewer.MarkdownText = sampleMarkdown;

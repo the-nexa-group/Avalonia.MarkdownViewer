@@ -4,13 +4,50 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:MarkdownViewer.Avalonia"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:md="using:MarkdownViewer.Core.Controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Title="Markdown Viewer Demo"
     d:DesignHeight="600"
     d:DesignWidth="800"
     mc:Ignorable="d">
-    <ScrollViewer>
-        <md:MarkdownViewer Name="MarkdownViewer" />
-    </ScrollViewer>
+    
+    <Window.Styles>
+        <Style Selector="GridSplitter">
+            <Setter Property="Background" Value="#44808080"/>
+            <Setter Property="MinWidth" Value="4"/>
+            <Setter Property="MinHeight" Value="4"/>
+        </Style>
+        
+        <Style Selector="TextBox#MarkdownEditor">
+            <Setter Property="Text" Value="{Binding #MarkdownViewer.MarkdownText, Mode=TwoWay}"/>
+        </Style>
+    </Window.Styles>
+
+    <Grid Name="MainGrid">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" MinWidth="200"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*" MinWidth="200"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- 编辑器区域 -->
+        <TextBox 
+            Name="MarkdownEditor"
+            Grid.Column="0"
+            AcceptsReturn="True"
+            TextWrapping="Wrap"
+            FontFamily="Consolas"
+            Margin="4"/>
+
+        <!-- 分隔条 -->
+        <GridSplitter 
+            Grid.Column="1"
+            ResizeDirection="Columns"
+            ResizeBehavior="PreviousAndNext"/>
+
+        <!-- 预览区域 -->
+        <ScrollViewer Grid.Column="2" Margin="4">
+            <md:MarkdownViewer Name="MarkdownViewer" />
+        </ScrollViewer>
+    </Grid>
 </Window>
