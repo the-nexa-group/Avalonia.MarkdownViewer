@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:MarkdownViewer.Avalonia"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:md="using:MarkdownViewer.Core.Controls"
     Title="Markdown Viewer Demo"
     d:DesignHeight="600"
     d:DesignWidth="800"
@@ -16,9 +17,6 @@
             FontSize="24">
             Markdown<Bold>Viewer</Bold> <Italic>Demo</Italic>
         </TextBlock>
-        <local:MarkdownView
-            x:Name="MarkdownViewer"
-            Grid.Row="1"
-            Margin="20" />
+        <md:MarkdownViewer Name="MarkdownViewer" />
     </Grid>
 </Window>

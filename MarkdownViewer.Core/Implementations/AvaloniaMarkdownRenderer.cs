@@ -5,6 +5,7 @@ using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Input;
 using Avalonia.Controls.Documents;
+using Avalonia.Controls.Primitives;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -22,7 +23,7 @@ namespace MarkdownViewer.Core.Implementations
         private readonly FontFamily _defaultFontFamily = FontFamily.Default;
         private readonly double _baseFontSize = 14;
         private readonly IImageCache _imageCache;
-        private readonly ILogger<AvaloniaMarkdownRenderer> _logger;
+        private readonly ILogger _logger;
 
         public event EventHandler<string>? LinkClicked;
 
@@ -35,9 +36,34 @@ namespace MarkdownViewer.Core.Implementations
             _logger = logger;
         }
 
-        public IControl RenderElement(MarkdownElement element)
+        public Control RenderDocument(string markdown)
         {
-            var control = element switch
+            var parser = new MarkdigParser();
+            var elements = parser.ParseTextAsync(markdown).ToBlockingEnumerable();
+
+            var panel = new StackPanel
+            {
+                Orientation = Orientation.Vertical,
+                Margin = new Thickness(10)
+            };
+
+            foreach (var element in elements)
+            {
+                var control = RenderElement(element);
+                panel.Children.Add(control);
+            }
+
+            return new ScrollViewer
+            {
+                Content = panel,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled
+            };
+        }
+
+        private Control RenderElement(MarkdownElement element)
+        {
+            return element switch
             {
                 HeadingElement heading => RenderHeading(heading),
                 ParagraphElement paragraph => RenderParagraph(paragraph),
@@ -50,8 +76,6 @@ namespace MarkdownViewer.Core.Implementations
                 EmphasisElement emphasis => RenderEmphasis(emphasis),
                 _ => new TextBlock { Text = "Unsupported element" }
             };
-
-            return new ControlWrapper(control);
         }
 
         public void UpdateElement(IControl control, MarkdownElement element)

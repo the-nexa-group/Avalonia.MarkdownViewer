@@ -9,24 +9,19 @@ namespace MarkdownViewer.Avalonia;
 
 public partial class MainWindow : Window
 {
-    private readonly HttpClient _httpClient;
+    private readonly HttpClient httpClient;
+    private readonly MemoryImageCache imageCache;
 
     public MainWindow()
     {
         InitializeComponent();
-        _httpClient = new HttpClient();
-        InitializeMarkdownViewer();
-        LoadSampleMarkdown();
-    }
 
-    private void InitializeMarkdownViewer()
-    {
-        var parser = new MarkdigParser();
-        var imageCacheLogger = NullLogger<MemoryImageCache>.Instance;
-        var imageCache = new MemoryImageCache(_httpClient, imageCacheLogger, 100 * 1024 * 1024); // 100MB cache
-        var rendererLogger = NullLogger<AvaloniaMarkdownRenderer>.Instance;
-        var renderer = new AvaloniaMarkdownRenderer(imageCache, rendererLogger);
-        MarkdownViewer.Initialize(parser, renderer);
+        httpClient = new HttpClient();
+        var logger = NullLogger<MemoryImageCache>.Instance;
+        imageCache = new MemoryImageCache(httpClient, logger);
+        var renderer = new AvaloniaMarkdownRenderer(imageCache, NullLogger<AvaloniaMarkdownRenderer>.Instance);
+        MarkdownViewer.Renderer = renderer;
+        LoadSampleMarkdown();
     }
 
     private void LoadSampleMarkdown()
