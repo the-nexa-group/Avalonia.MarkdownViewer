@@ -92,85 +92,100 @@ namespace MarkdownViewer.Core.Implementations
                 }
                 else if (block is ParagraphBlock paragraph)
                 {
-                    var element = new ParagraphElement
+                    if (paragraph.Inline?.FirstChild is LinkInline { IsImage: true } imageLink)
                     {
-                        RawText = blockText,
-                        ElementType = Elements.MarkdownElementType.Paragraph,
-                        Text = string.Empty,
-                        Inlines = new List<MarkdownElement>()
-                    };
-
-                    if (paragraph.Inline != null)
-                    {
-                        foreach (var inline in paragraph.Inline)
+                        // 如果段落只包含一个图片，直接返回 ImageElement
+                        yield return new ImageElement
                         {
-                            if (inline is LinkInline link)
+                            RawText = blockText,
+                            ElementType = Elements.MarkdownElementType.Image,
+                            Source = imageLink.Url ?? string.Empty,
+                            Title = imageLink.Title ?? string.Empty,
+                            Alt = imageLink.Label?.ToString() ?? string.Empty
+                        };
+                    }
+                    else
+                    {
+                        var element = new ParagraphElement
+                        {
+                            RawText = blockText,
+                            ElementType = Elements.MarkdownElementType.Paragraph,
+                            Text = string.Empty,
+                            Inlines = new List<MarkdownElement>()
+                        };
+
+                        if (paragraph.Inline != null)
+                        {
+                            foreach (var inline in paragraph.Inline)
                             {
-                                if (link.IsImage)
+                                if (inline is LinkInline link)
+                                {
+                                    if (link.IsImage)
+                                    {
+                                        element.Inlines.Add(
+                                            new ImageElement
+                                            {
+                                                RawText = link.ToString() ?? string.Empty,
+                                                ElementType = Elements.MarkdownElementType.Image,
+                                                Source = link.Url ?? string.Empty,
+                                                Title = link.Title ?? string.Empty,
+                                                Alt = link.Label?.ToString() ?? string.Empty
+                                            }
+                                        );
+                                    }
+                                    else
+                                    {
+                                        element.Inlines.Add(
+                                            new LinkElement
+                                            {
+                                                RawText = link.ToString() ?? string.Empty,
+                                                ElementType = Elements.MarkdownElementType.Link,
+                                                Text = ProcessInlineElements(link),
+                                                Url = link.Url ?? string.Empty,
+                                                Title = link.Title ?? string.Empty
+                                            }
+                                        );
+                                    }
+                                }
+                                else if (inline is EmphasisInline emphasis)
                                 {
                                     element.Inlines.Add(
-                                        new ImageElement
+                                        new EmphasisElement
                                         {
-                                            RawText = link.ToString() ?? string.Empty,
-                                            ElementType = Elements.MarkdownElementType.Image,
-                                            Source = link.Url ?? string.Empty,
-                                            Title = link.Title ?? string.Empty,
-                                            Alt = link.Label?.ToString() ?? string.Empty
+                                            RawText = emphasis.ToString() ?? string.Empty,
+                                            ElementType = Elements.MarkdownElementType.Emphasis,
+                                            Text = ProcessInlineElements(emphasis),
+                                            IsStrong = emphasis.DelimiterCount == 2
+                                        }
+                                    );
+                                }
+                                else if (inline is LiteralInline literal)
+                                {
+                                    element.Inlines.Add(
+                                        new TextElement
+                                        {
+                                            RawText = literal.ToString() ?? string.Empty,
+                                            ElementType = Elements.MarkdownElementType.Text,
+                                            Text = literal.Content.ToString()
                                         }
                                     );
                                 }
                                 else
                                 {
                                     element.Inlines.Add(
-                                        new LinkElement
+                                        new TextElement
                                         {
-                                            RawText = link.ToString() ?? string.Empty,
-                                            ElementType = Elements.MarkdownElementType.Link,
-                                            Text = ProcessInlineElements(link),
-                                            Url = link.Url ?? string.Empty,
-                                            Title = link.Title ?? string.Empty
+                                            RawText = inline.ToString() ?? string.Empty,
+                                            ElementType = Elements.MarkdownElementType.Text,
+                                            Text = ProcessInline(inline)
                                         }
                                     );
                                 }
                             }
-                            else if (inline is EmphasisInline emphasis)
-                            {
-                                element.Inlines.Add(
-                                    new EmphasisElement
-                                    {
-                                        RawText = emphasis.ToString() ?? string.Empty,
-                                        ElementType = Elements.MarkdownElementType.Emphasis,
-                                        Text = ProcessInlineElements(emphasis),
-                                        IsStrong = emphasis.DelimiterCount == 2
-                                    }
-                                );
-                            }
-                            else if (inline is LiteralInline literal)
-                            {
-                                element.Inlines.Add(
-                                    new TextElement
-                                    {
-                                        RawText = literal.ToString() ?? string.Empty,
-                                        ElementType = Elements.MarkdownElementType.Text,
-                                        Text = literal.Content.ToString()
-                                    }
-                                );
-                            }
-                            else
-                            {
-                                element.Inlines.Add(
-                                    new TextElement
-                                    {
-                                        RawText = inline.ToString() ?? string.Empty,
-                                        ElementType = Elements.MarkdownElementType.Text,
-                                        Text = ProcessInline(inline)
-                                    }
-                                );
-                            }
                         }
-                    }
 
-                    yield return element;
+                        yield return element;
+                    }
                 }
                 else if (block is CodeBlock codeBlock)
                 {
@@ -277,7 +292,45 @@ namespace MarkdownViewer.Core.Implementations
             if (paragraph?.Inline == null)
                 return string.Empty;
 
-            return ProcessInlineElements(paragraph.Inline);
+            var content = new StringBuilder();
+            foreach (var inline in paragraph.Inline)
+            {
+                if (inline is CodeInline codeInline)
+                {
+                    content.Append('`').Append(codeInline.Content).Append('`');
+                }
+                else if (inline is LinkInline link)
+                {
+                    if (link.IsImage)
+                    {
+                        content
+                            .Append("![")
+                            .Append(link.Label ?? string.Empty)
+                            .Append("](")
+                            .Append(link.Url)
+                            .Append(link.Title != null ? $" \"{link.Title}\"" : string.Empty)
+                            .Append(")");
+                    }
+                    else
+                    {
+                        content
+                            .Append("[")
+                            .Append(ProcessInlineElements(link))
+                            .Append("](")
+                            .Append(link.Url)
+                            .Append(")");
+                    }
+                }
+                else if (inline is LiteralInline literal)
+                {
+                    content.Append(literal.Content);
+                }
+                else
+                {
+                    content.Append(ProcessInline(inline));
+                }
+            }
+            return content.ToString();
         }
 
         private string ProcessInlineElements(ContainerInline? container)

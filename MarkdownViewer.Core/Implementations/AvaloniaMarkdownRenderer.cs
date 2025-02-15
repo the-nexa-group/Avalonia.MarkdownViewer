@@ -6,6 +6,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Input;
 using Avalonia.Controls.Documents;
 using Avalonia.Controls.Primitives;
+using Avalonia.Threading;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -69,6 +70,7 @@ namespace MarkdownViewer.Core.Implementations
                 LinkElement link => RenderLink(link),
                 TableElement table => RenderTable(table),
                 EmphasisElement emphasis => RenderEmphasis(emphasis),
+                HorizontalRuleElement => RenderHorizontalRule(),
                 _ => new TextBlock { Text = "Unsupported element" }
             };
         }
@@ -122,6 +124,12 @@ namespace MarkdownViewer.Core.Implementations
 
         private Control RenderParagraph(ParagraphElement paragraph)
         {
+            // 如果段落只包含一个图片元素，直接返回图片控件
+            if (paragraph.Inlines.Count == 1 && paragraph.Inlines[0] is ImageElement image)
+            {
+                return RenderImage(image);
+            }
+
             var textBlock = new TextBlock
             {
                 FontFamily = _defaultFontFamily,
@@ -139,6 +147,20 @@ namespace MarkdownViewer.Core.Implementations
 
                     switch (inline)
                     {
+                        case ImageElement img:
+                            var inlineImage = new Image
+                            {
+                                Stretch = Stretch.Uniform,
+                                StretchDirection = StretchDirection.DownOnly,
+                                MaxHeight = 400,
+                                Margin = new Thickness(0, 0, 0, 10)
+                            };
+                            LoadImageAsync(inlineImage, img.Source);
+
+                            // 创建一个内联容器来包含图片
+                            var inlineContainer = new InlineUIContainer { Child = inlineImage };
+                            textBlock.Inlines?.Add(inlineContainer);
+                            break;
                         case Elements.TextElement text:
                             textBlock.Inlines?.Add(new Run { Text = text.Text ?? string.Empty });
                             break;
@@ -438,7 +460,7 @@ namespace MarkdownViewer.Core.Implementations
 
         private async void LoadImageAsync(Image img, string source)
         {
-            if (img == null)
+            if (string.IsNullOrEmpty(source) || img == null)
                 return;
 
             try
@@ -448,20 +470,23 @@ namespace MarkdownViewer.Core.Implementations
                 {
                     using var stream = new MemoryStream(imageData);
                     var bitmap = new Bitmap(stream);
-                    img.Source = bitmap;
+
+                    // 在 UI 线程上设置图片源
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        img.Source = bitmap;
+                    });
                 }
                 else
                 {
+                    _logger.LogWarning("Failed to load image from {Source}", source);
                     img.Source = CreateErrorPlaceholder("Failed to load image");
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error loading image from {Source}", source);
-                if (img != null)
-                {
-                    img.Source = CreateErrorPlaceholder($"Error: {ex.Message}");
-                }
+                img.Source = CreateErrorPlaceholder($"Error: {ex.Message}");
             }
         }
 
@@ -519,13 +544,7 @@ namespace MarkdownViewer.Core.Implementations
             {
                 var headerCell = new Border
                 {
-                    Child = new TextBlock
-                    {
-                        Text = table.Headers[col],
-                        FontWeight = FontWeight.Bold,
-                        Padding = new Thickness(5),
-                        TextWrapping = TextWrapping.Wrap
-                    },
+                    Child = RenderTableCell(table.Headers[col]),
                     BorderBrush = new SolidColorBrush(Color.FromRgb(229, 229, 229)),
                     BorderThickness = new Thickness(1),
                     Background = new SolidColorBrush(Color.FromRgb(247, 247, 247))
@@ -543,12 +562,7 @@ namespace MarkdownViewer.Core.Implementations
                 {
                     var cell = new Border
                     {
-                        Child = new TextBlock
-                        {
-                            Text = rowData[col],
-                            Padding = new Thickness(5),
-                            TextWrapping = TextWrapping.Wrap
-                        },
+                        Child = RenderTableCell(rowData[col]),
                         BorderBrush = new SolidColorBrush(Color.FromRgb(229, 229, 229)),
                         BorderThickness = new Thickness(1)
                     };
@@ -559,6 +573,61 @@ namespace MarkdownViewer.Core.Implementations
             }
 
             return grid;
+        }
+
+        private Control RenderTableCell(string content)
+        {
+            var textBlock = new TextBlock
+            {
+                Padding = new Thickness(5),
+                TextWrapping = TextWrapping.Wrap
+            };
+
+            // 处理代码内联
+            if (content.StartsWith("`") && content.EndsWith("`"))
+            {
+                var code = content.Trim('`');
+                textBlock.FontFamily = new FontFamily("Consolas, Menlo, Monaco, monospace");
+                textBlock.Background = new SolidColorBrush(Color.FromRgb(245, 245, 245));
+                textBlock.Text = code;
+            }
+            // 处理链接
+            else if (content.Contains("[") && content.Contains("]("))
+            {
+                var linkStart = content.IndexOf("[");
+                var linkTextEnd = content.IndexOf("]", linkStart);
+                var urlStart = content.IndexOf("(", linkTextEnd);
+                var urlEnd = content.IndexOf(")", urlStart);
+
+                if (linkStart >= 0 && linkTextEnd >= 0 && urlStart >= 0 && urlEnd >= 0)
+                {
+                    var linkText = content.Substring(linkStart + 1, linkTextEnd - linkStart - 1);
+                    var url = content.Substring(urlStart + 1, urlEnd - urlStart - 1);
+
+                    var button = new Button
+                    {
+                        Content = new TextBlock
+                        {
+                            Text = linkText,
+                            TextDecorations = TextDecorations.Underline,
+                            Foreground = new SolidColorBrush(Color.FromRgb(0, 122, 255))
+                        },
+                        Background = Brushes.Transparent,
+                        BorderThickness = new Thickness(0),
+                        Padding = new Thickness(0),
+                        Cursor = new Cursor(StandardCursorType.Hand)
+                    };
+
+                    button.Click += (s, e) => OnLinkClicked(url);
+                    return button;
+                }
+            }
+            else
+            {
+                textBlock.Text = content;
+            }
+
+            return textBlock;
         }
 
         private void UpdateTable(Grid grid, TableElement table)
@@ -658,6 +727,16 @@ namespace MarkdownViewer.Core.Implementations
                 italic.Inlines?.Add(new Run { Text = emphasis.Text ?? string.Empty });
                 textBlock.Inlines.Add(italic);
             }
+        }
+
+        private Control RenderHorizontalRule()
+        {
+            return new Border
+            {
+                Height = 1,
+                Background = new SolidColorBrush(Color.FromRgb(229, 229, 229)),
+                Margin = new Thickness(0, 10, 0, 10)
+            };
         }
     }
 }

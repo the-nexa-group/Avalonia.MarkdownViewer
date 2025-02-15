@@ -55,9 +55,9 @@ public class Example
 
 ### Links and Images
 
-[Avalonia UI](https://avaloniaui.net/)
+Link: [Avalonia UI](https://avaloniaui.net/)
 
-![Avalonia Logo](https://avatars.githubusercontent.com/u/14075148?s=200&v=4)
+Pic: ![Avalonia Logo](https://avatars.githubusercontent.com/u/14075148?s=200&v=4)
 
 ### Tables
 
@@ -96,9 +96,9 @@ public class Example
 
 ### 链接和图片
 
-[Avalonia UI](https://avaloniaui.net/)
+链接：[Avalonia UI](https://avaloniaui.net/)
 
-![Avalonia Logo](https://avatars.githubusercontent.com/u/14075148?s=200&v=4)
+图片：![Avalonia Logo](https://avatars.githubusercontent.com/u/14075148?s=200&v=4)
 
 ### 表格
 
