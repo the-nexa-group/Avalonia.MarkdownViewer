@@ -53,12 +53,7 @@ namespace MarkdownViewer.Core.Implementations
                 panel.Children.Add(control);
             }
 
-            return new ScrollViewer
-            {
-                Content = panel,
-                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-                HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled
-            };
+            return panel;
         }
 
         private Control RenderElement(MarkdownElement element)

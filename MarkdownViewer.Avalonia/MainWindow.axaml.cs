@@ -66,7 +66,7 @@ public class Example
 | Normal text | **Bold text** | `Code text` |
 | [Link](http://example.com) | *Italic text* | Other content |
 
-
+---
 
 # Markdown 查看器示例
 

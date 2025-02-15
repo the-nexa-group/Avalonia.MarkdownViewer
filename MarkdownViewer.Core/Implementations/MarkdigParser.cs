@@ -250,11 +250,7 @@ namespace MarkdownViewer.Core.Implementations
                         ElementType = Elements.MarkdownElementType.Table,
                         Headers =
                             table.Count > 0 && table[0] is TableRow headerRow
-                                ? headerRow
-                                    .Select(
-                                        cell => ProcessInlineElements(((ParagraphBlock)cell).Inline)
-                                    )
-                                    .ToList()
+                                ? headerRow.Select(cell => GetCellContent((TableCell)cell)).ToList()
                                 : new List<string>(),
                         Rows = table
                             .Skip(1)
@@ -262,10 +258,7 @@ namespace MarkdownViewer.Core.Implementations
                             .Select(
                                 row =>
                                     ((TableRow)row)
-                                        .Select(
-                                            cell =>
-                                                ProcessInlineElements(((ParagraphBlock)cell).Inline)
-                                        )
+                                        .Select(cell => GetCellContent((TableCell)cell))
                                         .ToList()
                             )
                             .ToList()
@@ -289,8 +282,9 @@ namespace MarkdownViewer.Core.Implementations
 
         private string ProcessInlineElements(ContainerInline? container)
         {
-            if (container == null) return string.Empty;
-            
+            if (container == null)
+                return string.Empty;
+
             var builder = new StringBuilder();
             foreach (var inline in container)
             {

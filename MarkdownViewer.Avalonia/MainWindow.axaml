@@ -10,13 +10,7 @@
     d:DesignHeight="600"
     d:DesignWidth="800"
     mc:Ignorable="d">
-    <Grid RowDefinitions="Auto,*">
-        <TextBlock
-            Grid.Row="0"
-            Margin="20,10"
-            FontSize="24">
-            Markdown<Bold>Viewer</Bold> <Italic>Demo</Italic>
-        </TextBlock>
+    <ScrollViewer>
         <md:MarkdownViewer Name="MarkdownViewer" />
-    </Grid>
+    </ScrollViewer>
 </Window>
