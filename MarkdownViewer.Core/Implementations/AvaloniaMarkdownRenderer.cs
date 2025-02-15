@@ -191,6 +191,26 @@ namespace MarkdownViewer.Core.Implementations
                             span.Inlines?.Add(new Run { Text = link.Text ?? string.Empty });
                             textBlock.Inlines?.Add(span);
                             break;
+                        case CodeInlineElement code:
+                            var codeText = new TextBlock
+                            {
+                                Text = code.Code ?? string.Empty,
+                                FontFamily = new FontFamily("Consolas, Menlo, Monaco, monospace"),
+                                VerticalAlignment = VerticalAlignment.Center,
+                                TextAlignment = TextAlignment.Center,
+                                BaselineOffset = 1
+                            };
+                            var codeBorder = new Border
+                            {
+                                Child = codeText,
+                                Padding = new Thickness(4, 1, 4, 1),
+                                Background = new SolidColorBrush(Color.FromRgb(245, 245, 245)),
+                                VerticalAlignment = VerticalAlignment.Center,
+                                CornerRadius = new CornerRadius(3),
+                                Margin = new Thickness(0, 0, 0, -1)
+                            };
+                            textBlock.Inlines?.Add(new InlineUIContainer { Child = codeBorder });
+                            break;
                     }
                 }
             }

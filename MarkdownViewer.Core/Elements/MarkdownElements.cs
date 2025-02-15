@@ -90,4 +90,9 @@ namespace MarkdownViewer.Core.Elements
         public required string Text { get; set; }
         public bool IsStrong { get; set; }
     }
+
+    public class CodeInlineElement : MarkdownElement
+    {
+        public required string Code { get; set; }
+    }
 }

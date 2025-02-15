@@ -163,6 +163,17 @@ namespace MarkdownViewer.Core.Implementations
                                         }
                                     );
                                 }
+                                else if (inline is CodeInline code)
+                                {
+                                    element.Inlines.Add(
+                                        new CodeInlineElement
+                                        {
+                                            RawText = code.ToString() ?? string.Empty,
+                                            ElementType = Elements.MarkdownElementType.Text,
+                                            Code = code.Content.ToString()
+                                        }
+                                    );
+                                }
                                 else if (inline is LiteralInline literal)
                                 {
                                     element.Inlines.Add(
