@@ -111,6 +111,18 @@ public partial class MainWindow : Window
 
 这是一个**粗体**文本示例，这是*斜体*文本。
 
+
+### Roadmap
+- [x] Basic Markdown rendering
+- [x] Image handling and caching
+- [x] Link handling
+- [ ] Code syntax highlighting
+- [ ] Dark/Light theme support
+- [ ] Custom styling options
+- [ ] Export to PDF/HTML
+- [ ] Search functionality
+
+
 ### 列表示例
 
 - 项目 1

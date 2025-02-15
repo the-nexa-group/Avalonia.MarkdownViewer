@@ -1,6 +1,7 @@
 using Markdig;
 using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
+using Markdig.Extensions.TaskLists;
 using MarkdownViewer.Core.Elements;
 using System.IO;
 using System.Text;
@@ -25,6 +26,7 @@ namespace MarkdownViewer.Core.Implementations
             settings.UseAdvancedExtensions();
             settings.EnableTrackTrivia();
             settings.UsePreciseSourceLocation();
+            settings.UseTaskLists();
             _pipeline = settings.Build();
         }
 
@@ -93,6 +95,47 @@ namespace MarkdownViewer.Core.Implementations
                         Text = ProcessInlineElements(heading.Inline) ?? string.Empty
                     };
                     yield return element;
+                }
+                else if (block is ListBlock listBlock)
+                {
+                    if (
+                        listBlock.IsOrdered == false
+                        && listBlock.Any(x =>
+                        {
+                            if (x is ListItemBlock item)
+                            {
+                                var paragraph = item.Descendants<ParagraphBlock>().FirstOrDefault();
+                                if (paragraph?.Inline?.FirstChild is LiteralInline literal)
+                                {
+                                    var content = literal.Content.ToString();
+                                    return content.StartsWith("[ ] ")
+                                        || content.StartsWith("[x] ")
+                                        || content.StartsWith("[X] ");
+                                }
+                            }
+                            return false;
+                        })
+                    )
+                    {
+                        var element = new TaskListElement
+                        {
+                            RawText = blockText,
+                            ElementType = Elements.MarkdownElementType.TaskList,
+                            Items = ParseTaskListItems(listBlock, 0)
+                        };
+                        yield return element;
+                    }
+                    else
+                    {
+                        var element = new ListElement
+                        {
+                            RawText = blockText,
+                            ElementType = Elements.MarkdownElementType.List,
+                            IsOrdered = listBlock.IsOrdered,
+                            Items = ParseListItems(listBlock, 0)
+                        };
+                        yield return element;
+                    }
                 }
                 else if (block is ParagraphBlock paragraph)
                 {
@@ -216,17 +259,6 @@ namespace MarkdownViewer.Core.Implementations
                     };
                     yield return element;
                 }
-                else if (block is ListBlock listBlock)
-                {
-                    var element = new ListElement
-                    {
-                        RawText = blockText,
-                        ElementType = Elements.MarkdownElementType.List,
-                        IsOrdered = listBlock.IsOrdered,
-                        Items = ParseListItems(listBlock, 0)
-                    };
-                    yield return element;
-                }
                 else if (block is QuoteBlock quoteBlock)
                 {
                     var element = new QuoteElement
@@ -346,6 +378,7 @@ namespace MarkdownViewer.Core.Implementations
                 LinkInline link => link.Title ?? link.Url ?? string.Empty,
                 EmphasisInline emphasis => ProcessInlineElements(emphasis),
                 LineBreakInline => string.Empty,
+                TaskList taskList => taskList.Checked ? "[x] " : "[ ] ",
                 _ => inline.ToString() ?? string.Empty
             };
         }
@@ -377,6 +410,56 @@ namespace MarkdownViewer.Core.Implementations
                     if (subList != null)
                     {
                         element.Children = ParseListItems(subList, level + 1);
+                    }
+
+                    items.Add(element);
+                }
+            }
+            return items;
+        }
+
+        private List<TaskListItemElement> ParseTaskListItems(ListBlock listBlock, int level)
+        {
+            var items = new List<TaskListItemElement>();
+            foreach (var item in listBlock)
+            {
+                if (item is ListItemBlock listItem)
+                {
+                    var text = string.Empty;
+                    var isChecked = false;
+
+                    var paragraph = listItem.Descendants<ParagraphBlock>().FirstOrDefault();
+                    if (paragraph?.Inline != null)
+                    {
+                        // 处理所有内联元素
+                        text = ProcessInlineElements(paragraph.Inline);
+
+                        // 检查是否包含任务列表标记并提取
+                        if (
+                            text.StartsWith("[ ] ")
+                            || text.StartsWith("[x] ")
+                            || text.StartsWith("[X] ")
+                        )
+                        {
+                            isChecked = text.StartsWith("[x] ") || text.StartsWith("[X] ");
+                            text = text.Substring(4); // 跳过"[ ] "或"[x] "
+                        }
+                    }
+
+                    var element = new TaskListItemElement
+                    {
+                        RawText = item.ToString() ?? string.Empty,
+                        ElementType = Elements.MarkdownElementType.TaskListItem,
+                        Text = text,
+                        IsChecked = isChecked,
+                        Level = level
+                    };
+
+                    // 处理子列表
+                    var childList = listItem.Descendants<ListBlock>().FirstOrDefault();
+                    if (childList != null)
+                    {
+                        element.Children = ParseTaskListItems(childList, level + 1);
                     }
 
                     items.Add(element);

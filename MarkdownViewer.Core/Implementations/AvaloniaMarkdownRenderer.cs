@@ -65,6 +65,7 @@ namespace MarkdownViewer.Core.Implementations
                 ParagraphElement paragraph => RenderParagraph(paragraph),
                 CodeBlockElement codeBlock => RenderCodeBlock(codeBlock),
                 ListElement list => RenderList(list),
+                TaskListElement taskList => RenderTaskList(taskList),
                 QuoteElement quote => RenderQuote(quote),
                 ImageElement image => RenderImage(image),
                 LinkElement link => RenderLink(link),
@@ -90,6 +91,9 @@ namespace MarkdownViewer.Core.Implementations
                     break;
                 case ListElement list when control is StackPanel panel:
                     UpdateList(panel, list);
+                    break;
+                case TaskListElement taskList when control is StackPanel panel:
+                    UpdateTaskList(panel, taskList);
                     break;
                 case QuoteElement quote when control is Border border:
                     UpdateQuote(border, quote);
@@ -220,14 +224,7 @@ namespace MarkdownViewer.Core.Implementations
 
         private Control RenderCodeBlock(CodeBlockElement codeBlock)
         {
-            var grid = new Grid
-            {
-                ColumnDefinitions =
-                {
-                    new ColumnDefinition(GridLength.Star),
-                    new ColumnDefinition(GridLength.Auto)
-                }
-            };
+            var grid = new Grid();
 
             var textBox = new TextBlock
             {
@@ -408,6 +405,64 @@ namespace MarkdownViewer.Core.Implementations
             return panel;
         }
 
+        private Control RenderTaskList(TaskListElement taskList)
+        {
+            var panel = new StackPanel { Spacing = 5, Margin = new Thickness(0, 0, 0, 10) };
+
+            if (taskList.Items != null)
+            {
+                foreach (var item in taskList.Items)
+                {
+                    var itemPanel = new StackPanel
+                    {
+                        Orientation = Orientation.Horizontal,
+                        Margin = new Thickness(item.Level * 20, 0, 0, 0),
+                        Spacing = 5
+                    };
+
+                    var checkbox = new CheckBox
+                    {
+                        IsChecked = item.IsChecked,
+                        IsEnabled = false,  // 设置为只读
+                        VerticalAlignment = VerticalAlignment.Top
+                    };
+
+                    var contentPanel = new StackPanel
+                    {
+                        Orientation = Orientation.Vertical,
+                        Spacing = 5
+                    };
+
+                    var content = new TextBlock
+                    {
+                        Text = item.Text ?? string.Empty,
+                        TextWrapping = TextWrapping.Wrap,
+                        VerticalAlignment = VerticalAlignment.Top
+                    };
+
+                    contentPanel.Children?.Add(content);
+
+                    // 处理子项
+                    if (item.Children != null && item.Children.Count > 0)
+                    {
+                        var subList = new TaskListElement
+                        {
+                            RawText = string.Empty,
+                            Items = item.Children
+                        };
+                        var subListControl = RenderTaskList(subList);
+                        contentPanel.Children?.Add(subListControl);
+                    }
+
+                    itemPanel.Children?.Add(checkbox);
+                    itemPanel.Children?.Add(contentPanel);
+                    panel.Children?.Add(itemPanel);
+                }
+            }
+
+            return panel;
+        }
+
         private Control RenderQuote(QuoteElement quote)
         {
             var textBlock = new TextBlock
@@ -505,6 +560,45 @@ namespace MarkdownViewer.Core.Implementations
                 if (itemPanel.Children != null)
                 {
                     itemPanel.Children.Add(bullet);
+                    itemPanel.Children.Add(content);
+                }
+
+                panel.Children.Add(itemPanel);
+            }
+        }
+
+        private void UpdateTaskList(StackPanel panel, TaskListElement taskList)
+        {
+            if (panel.Children == null || taskList.Items == null)
+                return;
+
+            panel.Children.Clear();
+            foreach (var item in taskList.Items)
+            {
+                var itemPanel = new StackPanel
+                {
+                    Orientation = Orientation.Horizontal,
+                    Margin = new Thickness(item.Level * 20, 0, 0, 0),
+                    Spacing = 5
+                };
+
+                var checkbox = new CheckBox
+                {
+                    IsChecked = item.IsChecked,
+                    IsEnabled = false,  // 设置为只读
+                    VerticalAlignment = VerticalAlignment.Top
+                };
+
+                var content = new TextBlock
+                {
+                    Text = item.Text ?? string.Empty,
+                    TextWrapping = TextWrapping.Wrap,
+                    VerticalAlignment = VerticalAlignment.Top
+                };
+
+                if (itemPanel.Children != null)
+                {
+                    itemPanel.Children.Add(checkbox);
                     itemPanel.Children.Add(content);
                 }
 

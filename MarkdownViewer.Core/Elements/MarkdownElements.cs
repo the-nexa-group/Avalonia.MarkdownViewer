@@ -13,7 +13,9 @@ namespace MarkdownViewer.Core.Elements
         HorizontalRule,
         Table,
         Emphasis,
-        Text
+        Text,
+        TaskList,
+        TaskListItem
     }
 
     public abstract class MarkdownElement
@@ -94,5 +96,18 @@ namespace MarkdownViewer.Core.Elements
     public class CodeInlineElement : MarkdownElement
     {
         public required string Code { get; set; }
+    }
+
+    public class TaskListElement : MarkdownElement
+    {
+        public List<TaskListItemElement> Items { get; set; } = new();
+    }
+
+    public class TaskListItemElement : MarkdownElement
+    {
+        public required string Text { get; set; }
+        public bool IsChecked { get; set; }
+        public int Level { get; set; }
+        public List<TaskListItemElement> Children { get; set; } = new();
     }
 }
