@@ -208,30 +208,7 @@ namespace MarkdownViewer.Core.Implementations
                         RawText = blockText,
                         ElementType = Elements.MarkdownElementType.List,
                         IsOrdered = listBlock.IsOrdered,
-                        Items = listBlock
-                            .Select(item =>
-                            {
-                                var listItem = item as ListItemBlock;
-                                var text = string.Empty;
-                                if (listItem != null)
-                                {
-                                    var paragraph = listItem
-                                        .Descendants<ParagraphBlock>()
-                                        .FirstOrDefault();
-                                    text =
-                                        paragraph?.Inline != null
-                                            ? ProcessInlineElements(paragraph.Inline)
-                                            : string.Empty;
-                                }
-                                return new ListItemElement
-                                {
-                                    RawText = item.ToString() ?? string.Empty,
-                                    ElementType = Elements.MarkdownElementType.ListItem,
-                                    Text = text,
-                                    Level = 0
-                                };
-                            })
-                            .ToList()
+                        Items = ParseListItems(listBlock, 0)
                     };
                     yield return element;
                 }
@@ -355,6 +332,41 @@ namespace MarkdownViewer.Core.Implementations
                 EmphasisInline emphasis => ProcessInlineElements(emphasis),
                 _ => inline.ToString() ?? string.Empty
             };
+        }
+
+        private List<ListItemElement> ParseListItems(ListBlock listBlock, int level)
+        {
+            var items = new List<ListItemElement>();
+            foreach (var item in listBlock)
+            {
+                if (item is ListItemBlock listItem)
+                {
+                    var text = string.Empty;
+                    var paragraph = listItem.Descendants<ParagraphBlock>().FirstOrDefault();
+                    if (paragraph?.Inline != null)
+                    {
+                        text = ProcessInlineElements(paragraph.Inline);
+                    }
+
+                    var element = new ListItemElement
+                    {
+                        RawText = item.ToString() ?? string.Empty,
+                        ElementType = Elements.MarkdownElementType.ListItem,
+                        Text = text,
+                        Level = level
+                    };
+
+                    // 处理子列表
+                    var subList = listItem.Descendants<ListBlock>().FirstOrDefault();
+                    if (subList != null)
+                    {
+                        element.Children = ParseListItems(subList, level + 1);
+                    }
+
+                    items.Add(element);
+                }
+            }
+            return items;
         }
     }
 }

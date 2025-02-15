@@ -300,25 +300,53 @@ namespace MarkdownViewer.Core.Implementations
                     var itemPanel = new StackPanel
                     {
                         Orientation = Orientation.Horizontal,
-                        Margin = new Thickness(item.Level * 20, 0, 0, 0)
+                        Margin = new Thickness(item.Level * 20, 0, 0, 0),
+                        Spacing = 5
                     };
+
+                    // 根据层级和列表类型选择不同的符号
+                    string bulletText = list.IsOrdered
+                        ? $"{list.Items.IndexOf(item) + 1}."
+                        : (item.Level == 0 ? "•" : "◦");
 
                     var bullet = new TextBlock
                     {
-                        Text = list.IsOrdered ? $"{list.Items.IndexOf(item) + 1}." : "•",
+                        Text = bulletText,
                         Width = 20,
                         TextAlignment = TextAlignment.Right,
-                        Margin = new Thickness(0, 0, 5, 0)
+                        VerticalAlignment = VerticalAlignment.Top
+                    };
+
+                    var contentPanel = new StackPanel
+                    {
+                        Orientation = Orientation.Vertical,
+                        Spacing = 5
                     };
 
                     var content = new TextBlock
                     {
                         Text = item.Text ?? string.Empty,
-                        TextWrapping = TextWrapping.Wrap
+                        TextWrapping = TextWrapping.Wrap,
+                        VerticalAlignment = VerticalAlignment.Top
                     };
 
+                    contentPanel.Children?.Add(content);
+
+                    // 处理子项
+                    if (item.Children != null && item.Children.Count > 0)
+                    {
+                        var subList = new ListElement
+                        {
+                            RawText = string.Empty,
+                            Items = item.Children,
+                            IsOrdered = list.IsOrdered
+                        };
+                        var subListControl = RenderList(subList);
+                        contentPanel.Children?.Add(subListControl);
+                    }
+
                     itemPanel.Children?.Add(bullet);
-                    itemPanel.Children?.Add(content);
+                    itemPanel.Children?.Add(contentPanel);
                     panel.Children?.Add(itemPanel);
                 }
             }

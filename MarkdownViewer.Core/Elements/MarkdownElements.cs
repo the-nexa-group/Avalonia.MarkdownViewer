@@ -69,6 +69,7 @@ namespace MarkdownViewer.Core.Elements
     {
         public required string Text { get; set; }
         public int Level { get; set; }
+        public List<ListItemElement> Children { get; set; } = new();
     }
 
     public class QuoteElement : MarkdownElement
