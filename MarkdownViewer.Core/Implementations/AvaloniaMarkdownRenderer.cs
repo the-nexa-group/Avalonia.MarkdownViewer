@@ -200,19 +200,53 @@ namespace MarkdownViewer.Core.Implementations
 
         private Control RenderCodeBlock(CodeBlockElement codeBlock)
         {
-            var textBox = new TextBox
+            var grid = new Grid
+            {
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition(GridLength.Star),
+                    new ColumnDefinition(GridLength.Auto)
+                }
+            };
+
+            var textBox = new TextBlock
             {
                 Text = codeBlock.Code,
                 FontFamily = new FontFamily("Consolas, Menlo, Monaco, monospace"),
                 FontSize = _baseFontSize,
-                IsReadOnly = true,
-                AcceptsReturn = true,
                 Background = new SolidColorBrush(Color.FromRgb(245, 245, 245)),
-                Padding = new Thickness(10),
-                Margin = new Thickness(0, 0, 0, 10),
-                BorderThickness = new Thickness(0)
+                Padding = new Thickness(8),
+                Margin = new Thickness(0)
             };
-            return textBox;
+
+            var copyButton = new Button
+            {
+                Content = "复制",
+                Margin = new Thickness(4),
+                HorizontalAlignment = HorizontalAlignment.Right,
+                VerticalAlignment = VerticalAlignment.Top,
+                IsVisible = false
+            };
+
+            copyButton.Click += async (s, e) =>
+            {
+                var topLevel = TopLevel.GetTopLevel(copyButton);
+                if (topLevel?.Clipboard != null)
+                {
+                    await topLevel.Clipboard.SetTextAsync(codeBlock.Code);
+                }
+            };
+
+            grid.Children.Add(textBox);
+            Grid.SetColumn(textBox, 0);
+
+            grid.Children.Add(copyButton);
+            Grid.SetColumn(copyButton, 0);
+
+            grid.PointerEntered += (s, e) => copyButton.IsVisible = true;
+            grid.PointerExited += (s, e) => copyButton.IsVisible = false;
+
+            return grid;
         }
 
         private void UpdateHeading(TextBlock textBlock, HeadingElement heading)
