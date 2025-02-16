@@ -145,111 +145,7 @@ namespace MarkdownViewer.Core.Implementations
                 }
                 else if (block is ParagraphBlock paragraph)
                 {
-                    if (paragraph.Inline?.FirstChild is LinkInline { IsImage: true } imageLink)
-                    {
-                        // 如果段落只包含一个图片，直接返回 ImageElement
-                        yield return new ImageElement
-                        {
-                            RawText = blockText,
-                            ElementType = Elements.MarkdownElementType.Image,
-                            Source = imageLink.Url ?? string.Empty,
-                            Title = imageLink.Title ?? string.Empty,
-                            Alt = imageLink.Label?.ToString() ?? string.Empty
-                        };
-                    }
-                    else
-                    {
-                        var element = new ParagraphElement
-                        {
-                            RawText = blockText,
-                            ElementType = Elements.MarkdownElementType.Paragraph,
-                            Text = string.Empty,
-                            Inlines = new List<MarkdownElement>()
-                        };
-
-                        if (paragraph.Inline != null)
-                        {
-                            foreach (var inline in paragraph.Inline)
-                            {
-                                if (inline is LinkInline link)
-                                {
-                                    if (link.IsImage)
-                                    {
-                                        element.Inlines.Add(
-                                            new ImageElement
-                                            {
-                                                RawText = link.ToString() ?? string.Empty,
-                                                ElementType = Elements.MarkdownElementType.Image,
-                                                Source = link.Url ?? string.Empty,
-                                                Title = link.Title ?? string.Empty,
-                                                Alt = link.Label?.ToString() ?? string.Empty
-                                            }
-                                        );
-                                    }
-                                    else
-                                    {
-                                        element.Inlines.Add(
-                                            new LinkElement
-                                            {
-                                                RawText = link.ToString() ?? string.Empty,
-                                                ElementType = Elements.MarkdownElementType.Link,
-                                                Text = ProcessInlineElements(link),
-                                                Url = link.Url ?? string.Empty,
-                                                Title = link.Title ?? string.Empty
-                                            }
-                                        );
-                                    }
-                                }
-                                else if (inline is EmphasisInline emphasis)
-                                {
-                                    element.Inlines.Add(
-                                        new EmphasisElement
-                                        {
-                                            RawText = emphasis.ToString() ?? string.Empty,
-                                            ElementType = Elements.MarkdownElementType.Emphasis,
-                                            Text = ProcessInlineElements(emphasis),
-                                            IsStrong = emphasis.DelimiterCount == 2
-                                        }
-                                    );
-                                }
-                                else if (inline is CodeInline code)
-                                {
-                                    element.Inlines.Add(
-                                        new CodeInlineElement
-                                        {
-                                            RawText = code.ToString() ?? string.Empty,
-                                            ElementType = Elements.MarkdownElementType.Text,
-                                            Code = code.Content.ToString()
-                                        }
-                                    );
-                                }
-                                else if (inline is LiteralInline literal)
-                                {
-                                    element.Inlines.Add(
-                                        new TextElement
-                                        {
-                                            RawText = literal.ToString() ?? string.Empty,
-                                            ElementType = Elements.MarkdownElementType.Text,
-                                            Text = literal.Content.ToString()
-                                        }
-                                    );
-                                }
-                                else
-                                {
-                                    element.Inlines.Add(
-                                        new TextElement
-                                        {
-                                            RawText = inline.ToString() ?? string.Empty,
-                                            ElementType = Elements.MarkdownElementType.Text,
-                                            Text = ProcessInline(inline)
-                                        }
-                                    );
-                                }
-                            }
-                        }
-
-                        yield return element;
-                    }
+                    yield return CreateParagraphElement(paragraph, blockText);
                 }
                 else if (block is CodeBlock codeBlock)
                 {
@@ -270,100 +166,7 @@ namespace MarkdownViewer.Core.Implementations
                 }
                 else if (block is QuoteBlock quoteBlock)
                 {
-                    var element = new QuoteElement
-                    {
-                        RawText = blockText,
-                        ElementType = Elements.MarkdownElementType.Quote,
-                        Text = string.Empty,
-                        Inlines = new List<MarkdownElement>()
-                    };
-
-                    foreach (var line in quoteBlock)
-                    {
-                        if (line is ParagraphBlock quoteParagraph)
-                        {
-                            if (quoteParagraph.Inline?.FirstChild is LinkInline { IsImage: true } imageLink)
-                            {
-                                element.Inlines.Add(new ImageElement
-                                {
-                                    RawText = imageLink.ToString() ?? string.Empty,
-                                    ElementType = Elements.MarkdownElementType.Image,
-                                    Source = imageLink.Url ?? string.Empty,
-                                    Title = imageLink.Title ?? string.Empty,
-                                    Alt = imageLink.Label?.ToString() ?? string.Empty
-                                });
-                            }
-                            else if (quoteParagraph.Inline != null)
-                            {
-                                foreach (var inline in quoteParagraph.Inline)
-                                {
-                                    if (inline is LinkInline link)
-                                    {
-                                        if (link.IsImage)
-                                        {
-                                            element.Inlines.Add(new ImageElement
-                                            {
-                                                RawText = link.ToString() ?? string.Empty,
-                                                ElementType = Elements.MarkdownElementType.Image,
-                                                Source = link.Url ?? string.Empty,
-                                                Title = link.Title ?? string.Empty,
-                                                Alt = link.Label?.ToString() ?? string.Empty
-                                            });
-                                        }
-                                        else
-                                        {
-                                            element.Inlines.Add(new LinkElement
-                                            {
-                                                RawText = link.ToString() ?? string.Empty,
-                                                ElementType = Elements.MarkdownElementType.Link,
-                                                Text = ProcessInlineElements(link),
-                                                Url = link.Url ?? string.Empty,
-                                                Title = link.Title ?? string.Empty
-                                            });
-                                        }
-                                    }
-                                    else if (inline is EmphasisInline emphasis)
-                                    {
-                                        element.Inlines.Add(new EmphasisElement
-                                        {
-                                            RawText = emphasis.ToString() ?? string.Empty,
-                                            ElementType = Elements.MarkdownElementType.Emphasis,
-                                            Text = ProcessInlineElements(emphasis),
-                                            IsStrong = emphasis.DelimiterCount == 2
-                                        });
-                                    }
-                                    else if (inline is CodeInline code)
-                                    {
-                                        element.Inlines.Add(new CodeInlineElement
-                                        {
-                                            RawText = code.ToString() ?? string.Empty,
-                                            ElementType = Elements.MarkdownElementType.Text,
-                                            Code = code.Content.ToString()
-                                        });
-                                    }
-                                    else if (inline is LiteralInline literal)
-                                    {
-                                        element.Inlines.Add(new TextElement
-                                        {
-                                            RawText = literal.ToString() ?? string.Empty,
-                                            ElementType = Elements.MarkdownElementType.Text,
-                                            Text = literal.Content.ToString()
-                                        });
-                                    }
-                                    else
-                                    {
-                                        element.Inlines.Add(new TextElement
-                                        {
-                                            RawText = inline.ToString() ?? string.Empty,
-                                            ElementType = Elements.MarkdownElementType.Text,
-                                            Text = ProcessInline(inline)
-                                        });
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    yield return element;
+                    yield return CreateQuoteElement(quoteBlock, blockText);
                 }
                 else if (block is ThematicBreakBlock)
                 {
@@ -559,6 +362,132 @@ namespace MarkdownViewer.Core.Implementations
                 }
             }
             return items;
+        }
+
+        private MarkdownElement CreateInlineElement(Inline inline)
+        {
+            return inline switch
+            {
+                LinkInline link when link.IsImage
+                    => new ImageElement
+                    {
+                        RawText = link.ToString() ?? string.Empty,
+                        ElementType = Elements.MarkdownElementType.Image,
+                        Source = link.Url ?? string.Empty,
+                        Title = link.Title ?? string.Empty,
+                        Alt = link.Label?.ToString() ?? string.Empty
+                    },
+                LinkInline link
+                    => new LinkElement
+                    {
+                        RawText = link.ToString() ?? string.Empty,
+                        ElementType = Elements.MarkdownElementType.Link,
+                        Text = ProcessInlineElements(link),
+                        Url = link.Url ?? string.Empty,
+                        Title = link.Title ?? string.Empty
+                    },
+                EmphasisInline emphasis
+                    => new EmphasisElement
+                    {
+                        RawText = emphasis.ToString() ?? string.Empty,
+                        ElementType = Elements.MarkdownElementType.Emphasis,
+                        Text = ProcessInlineElements(emphasis),
+                        IsStrong = emphasis.DelimiterCount == 2
+                    },
+                CodeInline code
+                    => new CodeInlineElement
+                    {
+                        RawText = code.ToString() ?? string.Empty,
+                        ElementType = Elements.MarkdownElementType.Text,
+                        Code = code.Content.ToString()
+                    },
+                LiteralInline literal
+                    => new TextElement
+                    {
+                        RawText = literal.ToString() ?? string.Empty,
+                        ElementType = Elements.MarkdownElementType.Text,
+                        Text = literal.Content.ToString()
+                    },
+                _
+                    => new TextElement
+                    {
+                        RawText = inline.ToString() ?? string.Empty,
+                        ElementType = Elements.MarkdownElementType.Text,
+                        Text = ProcessInline(inline)
+                    }
+            };
+        }
+
+        private List<MarkdownElement> ProcessInlines(ContainerInline container)
+        {
+            var inlines = new List<MarkdownElement>();
+            if (container != null)
+            {
+                foreach (var inline in container)
+                {
+                    inlines.Add(CreateInlineElement(inline));
+                }
+            }
+            return inlines;
+        }
+
+        private ParagraphElement CreateParagraphElement(ParagraphBlock paragraph, string blockText)
+        {
+            if (paragraph.Inline?.FirstChild is LinkInline { IsImage: true } imageLink)
+            {
+                return new ParagraphElement
+                {
+                    RawText = blockText,
+                    ElementType = Elements.MarkdownElementType.Paragraph,
+                    Text = string.Empty,
+                    Inlines = new List<MarkdownElement>
+                    {
+                        new ImageElement
+                        {
+                            RawText = blockText,
+                            ElementType = Elements.MarkdownElementType.Image,
+                            Source = imageLink.Url ?? string.Empty,
+                            Title = imageLink.Title ?? string.Empty,
+                            Alt = imageLink.Label?.ToString() ?? string.Empty
+                        }
+                    }
+                };
+            }
+
+            return new ParagraphElement
+            {
+                RawText = blockText,
+                ElementType = Elements.MarkdownElementType.Paragraph,
+                Text = string.Empty,
+                Inlines =
+                    paragraph.Inline != null
+                        ? ProcessInlines(paragraph.Inline)
+                        : new List<MarkdownElement>()
+            };
+        }
+
+        private QuoteElement CreateQuoteElement(QuoteBlock quoteBlock, string blockText)
+        {
+            var element = new QuoteElement
+            {
+                RawText = blockText,
+                ElementType = Elements.MarkdownElementType.Quote,
+                Text = string.Empty,
+                Inlines = new List<MarkdownElement>()
+            };
+
+            foreach (var line in quoteBlock)
+            {
+                if (line is ParagraphBlock quoteParagraph)
+                {
+                    if (quoteParagraph.Inline != null)
+                    {
+                        element.Inlines.AddRange(ProcessInlines(quoteParagraph.Inline));
+                    }
+                }
+            }
+
+            return element;
         }
     }
 }

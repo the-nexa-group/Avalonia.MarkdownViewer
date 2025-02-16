@@ -21,6 +21,13 @@ namespace MarkdownViewer.Core.Implementations
 {
     public class AvaloniaMarkdownRenderer : IMarkdownRenderer
     {
+        private static readonly SolidColorBrush LinkForeground = new(Color.FromRgb(0, 122, 255));
+        private static readonly SolidColorBrush CodeBackground = new(Color.FromRgb(246, 248, 250));
+        private static readonly SolidColorBrush CodeBorder = new(Color.FromRgb(234, 236, 239));
+        private static readonly SolidColorBrush QuoteBackground = new(Color.FromRgb(249, 249, 249));
+        private static readonly SolidColorBrush BorderColor = new(Color.FromRgb(229, 229, 229));
+        private static readonly FontFamily CodeFontFamily = new("Consolas, Menlo, Monaco, monospace");
+
         private readonly FontFamily _defaultFontFamily = FontFamily.Default;
         private readonly double _baseFontSize = 14;
         private readonly IImageCache _imageCache;
@@ -369,45 +376,25 @@ namespace MarkdownViewer.Core.Implementations
                         textBlock.Inlines.Add(new Run { Text = text.Text ?? string.Empty });
                         break;
                     case EmphasisElement emphasis:
-                        if (emphasis.IsStrong)
-                        {
-                            var bold = new Bold
-                            {
-                                Inlines = { new Run { Text = emphasis.Text ?? string.Empty } }
-                            };
-                            textBlock.Inlines.Add(bold);
-                        }
-                        else
-                        {
-                            var italic = new Italic
-                            {
-                                Inlines = { new Run { Text = emphasis.Text ?? string.Empty } }
-                            };
-                            textBlock.Inlines.Add(italic);
-                        }
+                        var emphasisRun = new Run { Text = emphasis.Text ?? string.Empty };
+                        textBlock.Inlines.Add(
+                            emphasis.IsStrong
+                                ? new Bold { Inlines = { emphasisRun } }
+                                : new Italic { Inlines = { emphasisRun } }
+                        );
+                        break;
+                    case CodeInlineElement code:
+                        textBlock.Inlines.Add(
+                            new InlineUIContainer { Child = CreateCodeBorder(code.Code ?? string.Empty) }
+                        );
                         break;
                     case LinkElement link:
-                        var button = new Button
-                        {
-                            Content = new TextBlock
+                        textBlock.Inlines.Add(
+                            new InlineUIContainer
                             {
-                                Text = link.Text ?? string.Empty,
-                                TextDecorations = TextDecorations.Underline,
-                                Foreground = new SolidColorBrush(Color.FromRgb(0, 122, 255))
-                            },
-                            Background = Brushes.Transparent,
-                            BorderThickness = new Thickness(0),
-                            Padding = new Thickness(0),
-                            Cursor = new Cursor(StandardCursorType.Hand)
-                        };
-
-                        button.Click += (s, e) =>
-                        {
-                            DefaultLinkHandler.HandleLink(link.Url);
-                            LinkClicked?.Invoke(this, link.Url);
-                        };
-
-                        textBlock.Inlines.Add(new InlineUIContainer { Child = button });
+                                Child = CreateLinkButton(link.Text ?? string.Empty, link.Url)
+                            }
+                        );
                         break;
                 }
             }
@@ -941,46 +928,35 @@ namespace MarkdownViewer.Core.Implementations
         {
             var grid = new Grid { Margin = new Thickness(0, 0, 0, 10) };
 
-            // 添加列定义
+            // Add column definitions
             for (int i = 0; i < table.Headers.Count; i++)
             {
                 grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
             }
 
-            // 添加行定义
-            grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto }); // 表头行
-            foreach (var row in table.Rows)
+            // Add row definitions
+            grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto }); // Header row
+            foreach (var _ in table.Rows)
             {
                 grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             }
 
-            // 渲染表头
+            // Render headers
             for (int col = 0; col < table.Headers.Count; col++)
             {
-                var headerCell = new Border
-                {
-                    Child = RenderTableCell(table.Headers[col]),
-                    BorderBrush = new SolidColorBrush(Color.FromRgb(229, 229, 229)),
-                    BorderThickness = new Thickness(1),
-                    Background = new SolidColorBrush(Color.FromRgb(247, 247, 247))
-                };
+                var headerCell = CreateTableCell(table.Headers[col], true);
                 Grid.SetRow(headerCell, 0);
                 Grid.SetColumn(headerCell, col);
                 grid.Children.Add(headerCell);
             }
 
-            // 渲染数据行
+            // Render data rows
             for (int row = 0; row < table.Rows.Count; row++)
             {
-                var rowData = table.Rows[row];
-                for (int col = 0; col < Math.Min(rowData.Count, table.Headers.Count); col++)
+                var dataRow = table.Rows[row];
+                for (int col = 0; col < dataRow.Count; col++)
                 {
-                    var cell = new Border
-                    {
-                        Child = RenderTableCell(rowData[col]),
-                        BorderBrush = new SolidColorBrush(Color.FromRgb(229, 229, 229)),
-                        BorderThickness = new Thickness(1)
-                    };
+                    var cell = CreateTableCell(dataRow[col]);
                     Grid.SetRow(cell, row + 1);
                     Grid.SetColumn(cell, col);
                     grid.Children.Add(cell);
@@ -990,62 +966,26 @@ namespace MarkdownViewer.Core.Implementations
             return grid;
         }
 
-        private Control RenderTableCell(string content)
+        private Border CreateTableCell(string content, bool isHeader = false)
         {
             var textBlock = new TextBlock
             {
-                Padding = new Thickness(5),
-                TextWrapping = TextWrapping.Wrap
+                Text = content,
+                Padding = new Thickness(5)
             };
 
-            // 处理代码内联
-            if (content.StartsWith("`") && content.EndsWith("`"))
+            if (isHeader)
             {
-                var code = content.Trim('`');
-                textBlock.FontFamily = new FontFamily("Consolas, Menlo, Monaco, monospace");
-                textBlock.Background = new SolidColorBrush(Color.FromRgb(245, 245, 245));
-                textBlock.Text = code;
-                return textBlock;
-            }
-            // 处理链接
-            else if (content.Contains("[") && content.Contains("]("))
-            {
-                var linkStart = content.IndexOf("[");
-                var linkTextEnd = content.IndexOf("]", linkStart);
-                var urlStart = content.IndexOf("(", linkTextEnd);
-                var urlEnd = content.IndexOf(")", urlStart);
-
-                if (linkStart >= 0 && linkTextEnd >= 0 && urlStart >= 0 && urlEnd >= 0)
-                {
-                    var linkText = content.Substring(linkStart + 1, linkTextEnd - linkStart - 1);
-                    var url = content.Substring(urlStart + 1, urlEnd - urlStart - 1);
-
-                    var button = new Button
-                    {
-                        Content = new TextBlock
-                        {
-                            Text = linkText,
-                            TextDecorations = TextDecorations.Underline,
-                            Foreground = new SolidColorBrush(Color.FromRgb(0, 122, 255))
-                        },
-                        Background = Brushes.Transparent,
-                        BorderThickness = new Thickness(0),
-                        Padding = new Thickness(0),
-                        Cursor = new Cursor(StandardCursorType.Hand)
-                    };
-
-                    button.Click += (s, e) =>
-                    {
-                        DefaultLinkHandler.HandleLink(url);
-                        LinkClicked?.Invoke(this, url);
-                    };
-
-                    return button;
-                }
+                textBlock.FontWeight = FontWeight.Bold;
             }
 
-            textBlock.Text = content;
-            return textBlock;
+            return new Border
+            {
+                Child = textBlock,
+                BorderBrush = BorderColor,
+                BorderThickness = new Thickness(1),
+                Background = isHeader ? new SolidColorBrush(Color.FromRgb(247, 247, 247)) : null
+            };
         }
 
         private void UpdateTable(Grid grid, TableElement table)
@@ -1154,6 +1094,56 @@ namespace MarkdownViewer.Core.Implementations
                 Height = 1,
                 Background = new SolidColorBrush(Color.FromRgb(229, 229, 229)),
                 Margin = new Thickness(0, 10, 0, 10)
+            };
+        }
+
+        private Button CreateLinkButton(string text, string url)
+        {
+            var button = new Button
+            {
+                Content = new TextBlock
+                {
+                    Text = text,
+                    TextDecorations = TextDecorations.Underline,
+                    Foreground = LinkForeground
+                },
+                Background = Brushes.Transparent,
+                BorderThickness = new Thickness(0),
+                Padding = new Thickness(0),
+                Cursor = new Cursor(StandardCursorType.Hand)
+            };
+
+            button.Click += (s, e) =>
+            {
+                DefaultLinkHandler.HandleLink(url);
+                LinkClicked?.Invoke(this, url);
+            };
+
+            return button;
+        }
+
+        private Border CreateCodeBorder(string code)
+        {
+            var codeText = new TextBlock
+            {
+                Text = code,
+                FontFamily = CodeFontFamily,
+                VerticalAlignment = VerticalAlignment.Center,
+                TextAlignment = TextAlignment.Center,
+                BaselineOffset = 1,
+                FontSize = _baseFontSize * 0.9
+            };
+
+            return new Border
+            {
+                Child = codeText,
+                Padding = new Thickness(6, 2, 6, 2),
+                Background = CodeBackground,
+                BorderBrush = CodeBorder,
+                BorderThickness = new Thickness(1),
+                VerticalAlignment = VerticalAlignment.Center,
+                CornerRadius = new CornerRadius(4),
+                Margin = new Thickness(0, 0, 0, -1)
             };
         }
     }

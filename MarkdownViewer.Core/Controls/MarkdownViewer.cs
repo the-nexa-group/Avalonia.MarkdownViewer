@@ -8,6 +8,9 @@ using MarkdownViewer.Core.Services;
 
 namespace MarkdownViewer.Core.Controls
 {
+    /// <summary>
+    /// A control for displaying and rendering Markdown content.
+    /// </summary>
     public class MarkdownViewer : ContentControl
     {
         private static readonly IMarkdownRenderer DefaultRenderer;
@@ -25,6 +28,9 @@ namespace MarkdownViewer.Core.Controls
             );
         }
 
+        /// <summary>
+        /// Gets or sets the Markdown text to be displayed.
+        /// </summary>
         public static readonly DirectProperty<MarkdownViewer, string> MarkdownTextProperty =
             AvaloniaProperty.RegisterDirect<MarkdownViewer, string>(
                 nameof(MarkdownText),
@@ -33,6 +39,9 @@ namespace MarkdownViewer.Core.Controls
                 defaultBindingMode: BindingMode.TwoWay
             );
 
+        /// <summary>
+        /// Gets or sets the Markdown renderer property.
+        /// </summary>
         public static readonly StyledProperty<IMarkdownRenderer> RendererProperty =
             AvaloniaProperty.Register<MarkdownViewer, IMarkdownRenderer>(
                 nameof(Renderer),
@@ -47,18 +56,28 @@ namespace MarkdownViewer.Core.Controls
                 }
             );
 
+        /// <summary>
+        /// Gets or sets the Markdown text to be displayed.
+        /// </summary>
         public string MarkdownText
         {
             get => markdownText;
             set => SetAndRaise(MarkdownTextProperty, ref markdownText, value);
         }
 
+        /// <summary>
+        /// Gets or sets the markdown renderer used to convert markdown text to visual elements.
+        /// </summary>
         public IMarkdownRenderer Renderer
         {
             get => GetValue(RendererProperty);
             set => SetValue(RendererProperty, value);
         }
 
+        /// <summary>
+        /// Called when a property value is changed.
+        /// </summary>
+        /// <param name="change">A value containing event data.</param>
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
             base.OnPropertyChanged(change);
@@ -68,6 +87,9 @@ namespace MarkdownViewer.Core.Controls
             }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MarkdownViewer"/> class.
+        /// </summary>
         public MarkdownViewer()
         {
             Renderer = DefaultRenderer;
