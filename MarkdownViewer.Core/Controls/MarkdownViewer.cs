@@ -2,13 +2,28 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
 using MarkdownViewer.Core.Implementations;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using MarkdownViewer.Core.Services;
 
 namespace MarkdownViewer.Core.Controls
 {
     public class MarkdownViewer : ContentControl
     {
+        private static readonly IMarkdownRenderer DefaultRenderer;
         private IMarkdownRenderer? _renderer;
         private string markdownText = string.Empty;
+
+        static MarkdownViewer()
+        {
+            var httpClient = new HttpClient();
+            var imageCacheLogger = NullLogger<MemoryImageCache>.Instance;
+            var imageCache = new MemoryImageCache(httpClient, imageCacheLogger);
+            DefaultRenderer = new AvaloniaMarkdownRenderer(
+                imageCache,
+                NullLogger<AvaloniaMarkdownRenderer>.Instance
+            );
+        }
 
         public static readonly DirectProperty<MarkdownViewer, string> MarkdownTextProperty =
             AvaloniaProperty.RegisterDirect<MarkdownViewer, string>(
@@ -55,7 +70,7 @@ namespace MarkdownViewer.Core.Controls
 
         public MarkdownViewer()
         {
-            // Default constructor for XAML usage
+            Renderer = DefaultRenderer;
         }
 
         private void RenderContent()

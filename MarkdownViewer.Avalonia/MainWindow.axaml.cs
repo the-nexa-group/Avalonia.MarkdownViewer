@@ -20,19 +20,19 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
-        httpClient = new HttpClient();
         logger = NullLogger<MainWindow>.Instance;
-        var imageCacheLogger = NullLogger<MemoryImageCache>.Instance;
-        imageCache = new MemoryImageCache(httpClient, imageCacheLogger);
-        var renderer = new AvaloniaMarkdownRenderer(
-            imageCache,
-            NullLogger<AvaloniaMarkdownRenderer>.Instance
-        );
+        //httpClient = new HttpClient();
+        //var imageCacheLogger = NullLogger<MemoryImageCache>.Instance;
+        //imageCache = new MemoryImageCache(httpClient, imageCacheLogger);
+        //var renderer = new AvaloniaMarkdownRenderer(
+        //    imageCache,
+        //    NullLogger<AvaloniaMarkdownRenderer>.Instance
+        //);
 
         // 初始化链接处理器
         DefaultLinkHandler.Initialize(logger);
 
-        MarkdownViewer.Renderer = renderer;
+        //MarkdownViewer.Renderer = renderer;
 
         // 设置初始示例文本
         LoadSampleMarkdown();
