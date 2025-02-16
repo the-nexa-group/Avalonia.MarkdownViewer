@@ -7,8 +7,8 @@ namespace MarkdownViewer.Core.Controls
 {
     public class MarkdownViewer : ContentControl
     {
-        private IMarkdownRenderer _renderer;
-        private string markdownText;
+        private IMarkdownRenderer? _renderer;
+        private string markdownText = string.Empty;
 
         public static readonly DirectProperty<MarkdownViewer, string> MarkdownTextProperty =
             AvaloniaProperty.RegisterDirect<MarkdownViewer, string>(

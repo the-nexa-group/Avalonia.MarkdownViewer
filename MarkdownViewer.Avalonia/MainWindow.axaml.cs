@@ -45,11 +45,11 @@ public partial class MainWindow : Window
     {
         if (e.Property == BoundsProperty)
         {
-            UpdateLayout();
+            UpdateLayoutOrientation();
         }
     }
 
-    private void UpdateLayout()
+    private void UpdateLayoutOrientation()
     {
         var bounds = Bounds;
         if (bounds.Width < bounds.Height * 1.2) // 当宽度小于高度的1.2倍时切换为上下布局
