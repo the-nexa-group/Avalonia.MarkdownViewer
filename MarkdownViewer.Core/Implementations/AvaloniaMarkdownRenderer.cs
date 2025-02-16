@@ -26,7 +26,8 @@ namespace MarkdownViewer.Core.Implementations
         private static readonly SolidColorBrush CodeBorder = new(Color.FromRgb(234, 236, 239));
         private static readonly SolidColorBrush QuoteBackground = new(Color.FromRgb(249, 249, 249));
         private static readonly SolidColorBrush BorderColor = new(Color.FromRgb(229, 229, 229));
-        private static readonly FontFamily CodeFontFamily = new("Consolas, Menlo, Monaco, monospace");
+        private static readonly FontFamily CodeFontFamily =
+            new("Consolas, Menlo, Monaco, monospace");
 
         private readonly FontFamily _defaultFontFamily = FontFamily.Default;
         private readonly double _baseFontSize = 14;
@@ -385,7 +386,10 @@ namespace MarkdownViewer.Core.Implementations
                         break;
                     case CodeInlineElement code:
                         textBlock.Inlines.Add(
-                            new InlineUIContainer { Child = CreateCodeBorder(code.Code ?? string.Empty) }
+                            new InlineUIContainer
+                            {
+                                Child = CreateCodeBorder(code.Code ?? string.Empty)
+                            }
                         );
                         break;
                     case LinkElement link:
@@ -926,7 +930,17 @@ namespace MarkdownViewer.Core.Implementations
 
         private Control RenderTable(TableElement table)
         {
-            var grid = new Grid { Margin = new Thickness(0, 0, 0, 10) };
+            // 创建一个带圆角的外边框容器
+            var outerBorder = new Border
+            {
+                BorderBrush = BorderColor,
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(6),
+                Margin = new Thickness(0, 0, 0, 10),
+                ClipToBounds = true // 确保内容不会超出圆角边框
+            };
+
+            var grid = new Grid();
 
             // Add column definitions
             for (int i = 0; i < table.Headers.Count; i++)
@@ -963,17 +977,95 @@ namespace MarkdownViewer.Core.Implementations
                 }
             }
 
-            return grid;
+            outerBorder.Child = grid;
+            return outerBorder;
         }
 
         private Border CreateTableCell(string content, bool isHeader = false)
         {
             var textBlock = new TextBlock
             {
-                Text = content,
+                TextWrapping = TextWrapping.Wrap,
                 Padding = new Thickness(5)
             };
 
+            // 处理图片标记
+            if (content.StartsWith("![") && content.Contains("]("))
+            {
+                var altEnd = content.IndexOf("]");
+                var urlStart = content.IndexOf("(", altEnd);
+                var urlEnd = content.IndexOf(")", urlStart);
+
+                if (altEnd >= 0 && urlStart >= 0 && urlEnd >= 0)
+                {
+                    var alt = content.Substring(2, altEnd - 2);
+                    var url = content.Substring(urlStart + 1, urlEnd - urlStart - 1);
+
+                    var img = new Image
+                    {
+                        Stretch = Stretch.Uniform,
+                        StretchDirection = StretchDirection.DownOnly,
+                        MaxHeight = 100, // 在表格中使用较小的图片高度
+                        Margin = new Thickness(0)
+                    };
+                    LoadImageAsync(img, url);
+
+                    return new Border
+                    {
+                        Child = img,
+                        BorderBrush = BorderColor,
+                        BorderThickness = new Thickness(1),
+                        Background = isHeader
+                            ? new SolidColorBrush(Color.FromRgb(247, 247, 247))
+                            : null,
+                        Padding = new Thickness(2)
+                    };
+                }
+            }
+            // 处理链接标记
+            else if (content.StartsWith("[") && content.Contains("]("))
+            {
+                var textEnd = content.IndexOf("]");
+                var urlStart = content.IndexOf("(", textEnd);
+                var urlEnd = content.IndexOf(")", urlStart);
+
+                if (textEnd >= 0 && urlStart >= 0 && urlEnd >= 0)
+                {
+                    var linkText = content.Substring(1, textEnd - 1);
+                    var url = content.Substring(urlStart + 1, urlEnd - urlStart - 1);
+
+                    var button = CreateLinkButton(linkText, url);
+                    return new Border
+                    {
+                        Child = button,
+                        BorderBrush = BorderColor,
+                        BorderThickness = new Thickness(1),
+                        Background = isHeader
+                            ? new SolidColorBrush(Color.FromRgb(247, 247, 247))
+                            : null,
+                        Padding = new Thickness(2)
+                    };
+                }
+            }
+            // 处理代码标记
+            else if (content.StartsWith("`") && content.EndsWith("`"))
+            {
+                var code = content.Trim('`');
+                var codeBorder = CreateCodeBorder(code);
+                return new Border
+                {
+                    Child = codeBorder,
+                    BorderBrush = BorderColor,
+                    BorderThickness = new Thickness(1),
+                    Background = isHeader
+                        ? new SolidColorBrush(Color.FromRgb(247, 247, 247))
+                        : null,
+                    Padding = new Thickness(2)
+                };
+            }
+
+            // 普通文本
+            textBlock.Text = content;
             if (isHeader)
             {
                 textBlock.FontWeight = FontWeight.Bold;
