@@ -38,13 +38,21 @@ namespace MarkdownViewer.Core.Implementations
             using var reader = new StreamReader(stream);
             var currentBlock = new StringBuilder();
             string? line;
+            bool isInCodeBlock = false;
 
             while ((line = await reader.ReadLineAsync()) != null)
             {
                 if (cancellationToken.IsCancellationRequested)
                     yield break;
 
-                if (string.IsNullOrWhiteSpace(line) && currentBlock.Length > 0)
+                // 检查是否进入或离开代码块
+                if (line.StartsWith("```"))
+                {
+                    isInCodeBlock = !isInCodeBlock;
+                }
+
+                // 只有在不在代码块内且遇到空行时才处理当前块
+                if (!isInCodeBlock && string.IsNullOrWhiteSpace(line) && currentBlock.Length > 0)
                 {
                     foreach (var element in ParseBlock(currentBlock.ToString()))
                     {
@@ -52,10 +60,8 @@ namespace MarkdownViewer.Core.Implementations
                     }
                     currentBlock.Clear();
                 }
-                else
-                {
-                    currentBlock.AppendLine(line);
-                }
+
+                currentBlock.AppendLine(line);
             }
 
             if (currentBlock.Length > 0)
@@ -247,15 +253,15 @@ namespace MarkdownViewer.Core.Implementations
                 }
                 else if (block is CodeBlock codeBlock)
                 {
+                    var fencedCodeBlock = (FencedCodeBlock)codeBlock;
+                    var codeLines = fencedCodeBlock.Lines.Lines.Select(x => x.ToString()).ToList();
+
                     var element = new CodeBlockElement
                     {
                         RawText = blockText,
                         ElementType = Elements.MarkdownElementType.CodeBlock,
-                        Code = string.Join(
-                            Environment.NewLine,
-                            ((FencedCodeBlock)codeBlock).Lines.Lines.Select(x => x.ToString())
-                        ),
-                        Language = ((FencedCodeBlock)codeBlock).Info ?? string.Empty
+                        Code = string.Join(Environment.NewLine, codeLines),
+                        Language = fencedCodeBlock.Info ?? string.Empty
                     };
                     yield return element;
                 }
