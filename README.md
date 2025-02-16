@@ -107,10 +107,6 @@ dotnet run --project MarkdownViewer.Avalonia
 - Memory-optimized image compression
 - Modern user interface
 
-## 📄 License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
 ## 🤝 Contributing
 
 Contributions are welcome! Feel free to submit issues and pull requests.
@@ -120,3 +116,17 @@ Contributions are welcome! Feel free to submit issues and pull requests.
 - Large images may take longer to load on first render
 - Some complex math equations might not render correctly
 - Custom emoji shortcodes are not currently supported
+
+## Dependencies
+
+This project uses the following open source components:
+
+- [Markdig](https://github.com/xoofx/markdig) - A fast, powerful, CommonMark compliant, extensible Markdown processor for .NET (BSD-2-Clause License)
+- [Avalonia](https://github.com/AvaloniaUI/Avalonia) - A cross-platform .NET UI framework (MIT License)
+
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+For third-party license notices, please see [THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt).

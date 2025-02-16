@@ -4,7 +4,27 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    
+    <!-- NuGet Package Info -->
+    <PackageId>MarkdownViewer.Core</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>LITTOMA</Authors>
+    <Company>LITTOMA</Company>
+    <Description>A powerful Markdown viewer control for Avalonia applications with support for custom rendering and styling.</Description>
+    <PackageTags>markdown;avalonia;viewer;control;xaml</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/LITTOMA/Avalonia.MarkdownViewer</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/LITTOMA/Avalonia.MarkdownViewer</RepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    
+    <!-- Build Settings -->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="11.2.3" />
