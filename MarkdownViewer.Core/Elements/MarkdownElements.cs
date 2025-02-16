@@ -77,6 +77,7 @@ namespace MarkdownViewer.Core.Elements
     public class QuoteElement : MarkdownElement
     {
         public required string Text { get; set; }
+        public List<MarkdownElement> Inlines { get; set; } = new();
     }
 
     public class HorizontalRuleElement : MarkdownElement { }

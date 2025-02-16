@@ -561,11 +561,86 @@ namespace MarkdownViewer.Core.Implementations
         {
             var textBlock = new TextBlock
             {
-                Text = quote.Text,
                 TextWrapping = TextWrapping.Wrap,
                 Margin = new Thickness(10),
                 Foreground = new SolidColorBrush(Color.FromRgb(108, 108, 108))
             };
+
+            if (quote.Inlines != null)
+            {
+                foreach (var inline in quote.Inlines)
+                {
+                    if (inline is Elements.TextElement text)
+                    {
+                        textBlock.Inlines?.Add(new Run { Text = text.Text ?? string.Empty });
+                    }
+                    else if (inline is EmphasisElement emphasis)
+                    {
+                        if (emphasis.IsStrong)
+                        {
+                            var bold = new Bold
+                            {
+                                Inlines = { new Run { Text = emphasis.Text ?? string.Empty } }
+                            };
+                            textBlock.Inlines?.Add(bold);
+                        }
+                        else
+                        {
+                            var italic = new Italic
+                            {
+                                Inlines = { new Run { Text = emphasis.Text ?? string.Empty } }
+                            };
+                            textBlock.Inlines?.Add(italic);
+                        }
+                    }
+                    else if (inline is CodeInlineElement code)
+                    {
+                        var codeText = new TextBlock
+                        {
+                            Text = code.Code ?? string.Empty,
+                            FontFamily = new FontFamily("Consolas, Menlo, Monaco, monospace"),
+                            VerticalAlignment = VerticalAlignment.Center,
+                            TextAlignment = TextAlignment.Center,
+                            BaselineOffset = 1,
+                            FontSize = _baseFontSize * 0.9
+                        };
+                        var codeBorder = new Border
+                        {
+                            Child = codeText,
+                            Padding = new Thickness(6, 2, 6, 2),
+                            Background = new SolidColorBrush(Color.FromRgb(246, 248, 250)),
+                            BorderBrush = new SolidColorBrush(Color.FromRgb(234, 236, 239)),
+                            BorderThickness = new Thickness(1),
+                            VerticalAlignment = VerticalAlignment.Center,
+                            CornerRadius = new CornerRadius(4),
+                            Margin = new Thickness(0, 0, 0, -1)
+                        };
+                        textBlock.Inlines?.Add(new InlineUIContainer { Child = codeBorder });
+                    }
+                    else if (inline is LinkElement link)
+                    {
+                        var run = new Run
+                        {
+                            Text = link.Text,
+                            TextDecorations = TextDecorations.Underline,
+                            Foreground = new SolidColorBrush(Color.FromRgb(0, 122, 255))
+                        };
+                        textBlock.Inlines?.Add(run);
+                    }
+                    else if (inline is ImageElement image)
+                    {
+                        var img = new Image
+                        {
+                            Stretch = Stretch.Uniform,
+                            StretchDirection = StretchDirection.DownOnly,
+                            MaxHeight = 400,
+                            Margin = new Thickness(0, 0, 0, 10)
+                        };
+                        LoadImageAsync(img, image.Source);
+                        textBlock.Inlines?.Add(new InlineUIContainer { Child = img });
+                    }
+                }
+            }
 
             return new Border
             {
@@ -576,6 +651,89 @@ namespace MarkdownViewer.Core.Implementations
                 Margin = new Thickness(0, 0, 0, 10),
                 Padding = new Thickness(10)
             };
+        }
+
+        private void UpdateQuote(Border border, QuoteElement quote)
+        {
+            if (border.Child is TextBlock textBlock)
+            {
+                textBlock.Inlines?.Clear();
+                if (quote.Inlines != null)
+                {
+                    foreach (var inline in quote.Inlines)
+                    {
+                        if (inline is Elements.TextElement text)
+                        {
+                            textBlock.Inlines?.Add(new Run { Text = text.Text ?? string.Empty });
+                        }
+                        else if (inline is EmphasisElement emphasis)
+                        {
+                            if (emphasis.IsStrong)
+                            {
+                                var bold = new Bold
+                                {
+                                    Inlines = { new Run { Text = emphasis.Text ?? string.Empty } }
+                                };
+                                textBlock.Inlines?.Add(bold);
+                            }
+                            else
+                            {
+                                var italic = new Italic
+                                {
+                                    Inlines = { new Run { Text = emphasis.Text ?? string.Empty } }
+                                };
+                                textBlock.Inlines?.Add(italic);
+                            }
+                        }
+                        else if (inline is CodeInlineElement code)
+                        {
+                            var codeText = new TextBlock
+                            {
+                                Text = code.Code ?? string.Empty,
+                                FontFamily = new FontFamily("Consolas, Menlo, Monaco, monospace"),
+                                VerticalAlignment = VerticalAlignment.Center,
+                                TextAlignment = TextAlignment.Center,
+                                BaselineOffset = 1,
+                                FontSize = _baseFontSize * 0.9
+                            };
+                            var codeBorder = new Border
+                            {
+                                Child = codeText,
+                                Padding = new Thickness(6, 2, 6, 2),
+                                Background = new SolidColorBrush(Color.FromRgb(246, 248, 250)),
+                                BorderBrush = new SolidColorBrush(Color.FromRgb(234, 236, 239)),
+                                BorderThickness = new Thickness(1),
+                                VerticalAlignment = VerticalAlignment.Center,
+                                CornerRadius = new CornerRadius(4),
+                                Margin = new Thickness(0, 0, 0, -1)
+                            };
+                            textBlock.Inlines?.Add(new InlineUIContainer { Child = codeBorder });
+                        }
+                        else if (inline is LinkElement link)
+                        {
+                            var run = new Run
+                            {
+                                Text = link.Text,
+                                TextDecorations = TextDecorations.Underline,
+                                Foreground = new SolidColorBrush(Color.FromRgb(0, 122, 255))
+                            };
+                            textBlock.Inlines?.Add(run);
+                        }
+                        else if (inline is ImageElement image)
+                        {
+                            var img = new Image
+                            {
+                                Stretch = Stretch.Uniform,
+                                StretchDirection = StretchDirection.DownOnly,
+                                MaxHeight = 400,
+                                Margin = new Thickness(0, 0, 0, 10)
+                            };
+                            LoadImageAsync(img, image.Source);
+                            textBlock.Inlines?.Add(new InlineUIContainer { Child = img });
+                        }
+                    }
+                }
+            }
         }
 
         private Control RenderImage(ImageElement image)
@@ -692,14 +850,6 @@ namespace MarkdownViewer.Core.Implementations
                 }
 
                 panel.Children.Add(itemPanel);
-            }
-        }
-
-        private void UpdateQuote(Border border, QuoteElement quote)
-        {
-            if (border.Child is TextBlock textBlock)
-            {
-                textBlock.Text = quote.Text;
             }
         }
 
