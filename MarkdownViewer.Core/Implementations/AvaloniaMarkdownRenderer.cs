@@ -187,13 +187,27 @@ namespace MarkdownViewer.Core.Implementations
                             }
                             break;
                         case LinkElement link:
-                            var span = new Span
+                            var button = new Button
                             {
-                                Foreground = new SolidColorBrush(Color.FromRgb(0, 122, 255)),
-                                TextDecorations = TextDecorations.Underline
+                                Content = new TextBlock
+                                {
+                                    Text = link.Text ?? string.Empty,
+                                    TextDecorations = TextDecorations.Underline,
+                                    Foreground = new SolidColorBrush(Color.FromRgb(0, 122, 255))
+                                },
+                                Background = Brushes.Transparent,
+                                BorderThickness = new Thickness(0),
+                                Padding = new Thickness(0),
+                                Cursor = new Cursor(StandardCursorType.Hand)
                             };
-                            span.Inlines?.Add(new Run { Text = link.Text ?? string.Empty });
-                            textBlock.Inlines?.Add(span);
+
+                            button.Click += (s, e) =>
+                            {
+                                DefaultLinkHandler.HandleLink(link.Url);
+                                LinkClicked?.Invoke(this, link.Url);
+                            };
+
+                            textBlock.Inlines?.Add(new InlineUIContainer { Child = button });
                             break;
                         case CodeInlineElement code:
                             var codeText = new TextBlock
@@ -373,13 +387,27 @@ namespace MarkdownViewer.Core.Implementations
                         }
                         break;
                     case LinkElement link:
-                        var span = new Span
+                        var button = new Button
                         {
-                            Foreground = new SolidColorBrush(Color.FromRgb(0, 122, 255)),
-                            TextDecorations = TextDecorations.Underline
+                            Content = new TextBlock
+                            {
+                                Text = link.Text ?? string.Empty,
+                                TextDecorations = TextDecorations.Underline,
+                                Foreground = new SolidColorBrush(Color.FromRgb(0, 122, 255))
+                            },
+                            Background = Brushes.Transparent,
+                            BorderThickness = new Thickness(0),
+                            Padding = new Thickness(0),
+                            Cursor = new Cursor(StandardCursorType.Hand)
                         };
-                        span.Inlines?.Add(new Run { Text = link.Text ?? string.Empty });
-                        textBlock.Inlines.Add(span);
+
+                        button.Click += (s, e) =>
+                        {
+                            DefaultLinkHandler.HandleLink(link.Url);
+                            LinkClicked?.Invoke(this, link.Url);
+                        };
+
+                        textBlock.Inlines.Add(new InlineUIContainer { Child = button });
                         break;
                 }
             }
@@ -566,30 +594,25 @@ namespace MarkdownViewer.Core.Implementations
 
         private Control RenderLink(LinkElement link)
         {
-            var run = new Run
+            var textBlock = new TextBlock
             {
-                Text = link.Text ?? string.Empty,
+                TextWrapping = TextWrapping.Wrap,
+                Foreground = new SolidColorBrush(Color.FromRgb(0, 122, 255)),
                 TextDecorations = TextDecorations.Underline,
-                Foreground = new SolidColorBrush(Color.FromRgb(0, 122, 255))
-            };
-
-            var textBlock = new TextBlock();
-            if (textBlock.Inlines != null)
-            {
-                textBlock.Inlines.Add(run);
-            }
-
-            var button = new Button
-            {
-                Content = textBlock,
-                Background = Brushes.Transparent,
-                BorderThickness = new Thickness(0),
-                Padding = new Thickness(0),
                 Cursor = new Cursor(StandardCursorType.Hand)
             };
 
-            button.Click += (s, e) => OnLinkClicked(link.Url ?? string.Empty);
-            return button;
+            textBlock.PointerPressed += (s, e) =>
+            {
+                if (e.GetCurrentPoint(null).Properties.IsLeftButtonPressed)
+                {
+                    DefaultLinkHandler.HandleLink(link.Url);
+                    LinkClicked?.Invoke(this, link.Url);
+                }
+            };
+
+            textBlock.Text = link.Text;
+            return textBlock;
         }
 
         private void UpdateList(StackPanel panel, ListElement list)
@@ -832,6 +855,7 @@ namespace MarkdownViewer.Core.Implementations
                 textBlock.FontFamily = new FontFamily("Consolas, Menlo, Monaco, monospace");
                 textBlock.Background = new SolidColorBrush(Color.FromRgb(245, 245, 245));
                 textBlock.Text = code;
+                return textBlock;
             }
             // 处理链接
             else if (content.Contains("[") && content.Contains("]("))
@@ -860,15 +884,17 @@ namespace MarkdownViewer.Core.Implementations
                         Cursor = new Cursor(StandardCursorType.Hand)
                     };
 
-                    button.Click += (s, e) => OnLinkClicked(url);
+                    button.Click += (s, e) =>
+                    {
+                        DefaultLinkHandler.HandleLink(url);
+                        LinkClicked?.Invoke(this, url);
+                    };
+
                     return button;
                 }
             }
-            else
-            {
-                textBlock.Text = content;
-            }
 
+            textBlock.Text = content;
             return textBlock;
         }
 

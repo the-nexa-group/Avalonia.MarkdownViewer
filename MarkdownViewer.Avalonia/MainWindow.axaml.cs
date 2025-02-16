@@ -14,18 +14,24 @@ public partial class MainWindow : Window
 {
     private readonly HttpClient httpClient;
     private readonly MemoryImageCache imageCache;
+    private readonly ILogger<MainWindow> logger;
 
     public MainWindow()
     {
         InitializeComponent();
 
         httpClient = new HttpClient();
-        var logger = NullLogger<MemoryImageCache>.Instance;
-        imageCache = new MemoryImageCache(httpClient, logger);
+        logger = NullLogger<MainWindow>.Instance;
+        var imageCacheLogger = NullLogger<MemoryImageCache>.Instance;
+        imageCache = new MemoryImageCache(httpClient, imageCacheLogger);
         var renderer = new AvaloniaMarkdownRenderer(
             imageCache,
             NullLogger<AvaloniaMarkdownRenderer>.Instance
         );
+
+        // 初始化链接处理器
+        DefaultLinkHandler.Initialize(logger);
+
         MarkdownViewer.Renderer = renderer;
 
         // 设置初始示例文本
@@ -119,8 +125,6 @@ public partial class MainWindow : Window
 - [ ] Code syntax highlighting
 - [ ] Dark/Light theme support
 - [ ] Custom styling options
-- [ ] Export to PDF/HTML
-- [ ] Search functionality
 
 
 ### 列表示例

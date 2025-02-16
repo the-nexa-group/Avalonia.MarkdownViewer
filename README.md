@@ -18,20 +18,20 @@ Current Version: Pre-release
 Status: Active Development
 
 ### Roadmap
-- [x] Basic Markdown rendering
-- [x] Image handling and caching
-- [x] Link handling
+
+- [X] Basic Markdown rendering
+- [X] Image handling and caching
+- [X] Link handling
 - [ ] Code syntax highlighting
 - [ ] Dark/Light theme support
 - [ ] Custom styling options
-- [ ] Export to PDF/HTML
-- [ ] Search functionality
 
 ## 📝 Markdown Support
 
 Currently supports the following Markdown features:
 
 ### Basic Syntax
+
 - ✅ Headers (H1-H6)
 - ✅ Emphasis (bold, italic)
 - ✅ Lists (ordered and unordered)
@@ -42,6 +42,7 @@ Currently supports the following Markdown features:
 - ✅ Horizontal rules
 
 ### Extended Syntax
+
 - ✅ Tables
 - ✅ Task lists
 - ✅ Strikethrough
@@ -75,21 +76,25 @@ The project consists of two main parts:
 ### Build Steps
 
 1. Clone the repository:
+
 ```bash
 git clone [repository-url]
 ```
 
 2. Navigate to the project directory:
+
 ```bash
 cd Avalonia.Markdown
 ```
 
 3. Build the project:
+
 ```bash
 dotnet build
 ```
 
 4. Run the application:
+
 ```bash
 dotnet run --project MarkdownViewer.Avalonia
 ```
@@ -114,4 +119,4 @@ Contributions are welcome! Feel free to submit issues and pull requests.
 
 - Large images may take longer to load on first render
 - Some complex math equations might not render correctly
-- Custom emoji shortcodes are not currently supported 
+- Custom emoji shortcodes are not currently supported
