@@ -225,6 +225,55 @@ namespace MarkdownViewer.Core.Implementations
             return textBlock;
         }
 
+        private string GetCopyButtonText()
+        {
+            // 获取当前系统的语言代码
+            var currentCulture = CultureInfo.CurrentCulture.TwoLetterISOLanguageName.ToLower();
+
+            return currentCulture switch
+            {
+                "zh" => "复制",
+                "ja" => "コピー",
+                "ko" => "복사",
+                "fr" => "Copier",
+                "de" => "Kopieren",
+                "es" => "Copiar",
+                "it" => "Copia",
+                "ru" => "Копировать",
+                "pt" => "Copiar",
+                "nl" => "Kopiëren",
+                "pl" => "Kopiuj",
+                "tr" => "Kopyala",
+                "ar" => "نسخ",
+                "hi" => "कॉपी",
+                "th" => "คัดลอก",
+                "vi" => "Sao chép",
+                "cs" => "Kopírovat",
+                "sv" => "Kopiera",
+                "el" => "Αντιγραφή",
+                "he" => "העתק",
+                "hu" => "Másolás",
+                "ro" => "Copiază",
+                "uk" => "Копіювати",
+                "fi" => "Kopioi",
+                "da" => "Kopiér",
+                "id" => "Salin",
+                "ms" => "Salin",
+                "bn" => "কপি",
+                "fa" => "کپی",
+                "bg" => "Копирай",
+                "sk" => "Kopírovať",
+                "hr" => "Kopiraj",
+                "sr" => "Копирај",
+                "sl" => "Kopiraj",
+                "et" => "Kopeeri",
+                "lv" => "Kopēt",
+                "lt" => "Kopijuoti",
+                "no" => "Kopier",
+                _ => "Copy" // 默认英文
+            };
+        }
+
         private Control RenderCodeBlock(CodeBlockElement codeBlock)
         {
             var grid = new Grid();
@@ -249,7 +298,7 @@ namespace MarkdownViewer.Core.Implementations
 
             var copyButton = new Button
             {
-                Content = "复制",
+                Content = GetCopyButtonText(),
                 Margin = new Thickness(8),
                 HorizontalAlignment = HorizontalAlignment.Right,
                 VerticalAlignment = VerticalAlignment.Top,
@@ -440,7 +489,7 @@ namespace MarkdownViewer.Core.Implementations
                     var checkbox = new CheckBox
                     {
                         IsChecked = item.IsChecked,
-                        IsEnabled = false,  // 设置为只读
+                        IsEnabled = false, // 设置为只读
                         VerticalAlignment = VerticalAlignment.Top
                     };
 
@@ -602,7 +651,7 @@ namespace MarkdownViewer.Core.Implementations
                 var checkbox = new CheckBox
                 {
                     IsChecked = item.IsChecked,
-                    IsEnabled = false,  // 设置为只读
+                    IsEnabled = false, // 设置为只读
                     VerticalAlignment = VerticalAlignment.Top
                 };
 
