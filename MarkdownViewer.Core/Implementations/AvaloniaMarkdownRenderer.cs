@@ -233,7 +233,7 @@ namespace MarkdownViewer.Core.Implementations
                 FontSize = _baseFontSize,
                 Background = new SolidColorBrush(Color.FromRgb(245, 245, 245)),
                 Padding = new Thickness(8),
-                Margin = new Thickness(0)
+                Margin = new Thickness(0, 0, 0, 10)
             };
 
             var copyButton = new Button

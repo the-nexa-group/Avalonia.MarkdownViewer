@@ -254,7 +254,10 @@ namespace MarkdownViewer.Core.Implementations
                 else if (block is CodeBlock codeBlock)
                 {
                     var fencedCodeBlock = (FencedCodeBlock)codeBlock;
-                    var codeLines = fencedCodeBlock.Lines.Lines.Select(x => x.ToString()).ToList();
+                    var codeLines = fencedCodeBlock.Lines.Lines
+                        .Take(fencedCodeBlock.Lines.Count)
+                        .Select(x => x.ToString())
+                        .ToList();
 
                     var element = new CodeBlockElement
                     {
