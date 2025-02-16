@@ -202,15 +202,18 @@ namespace MarkdownViewer.Core.Implementations
                                 FontFamily = new FontFamily("Consolas, Menlo, Monaco, monospace"),
                                 VerticalAlignment = VerticalAlignment.Center,
                                 TextAlignment = TextAlignment.Center,
-                                BaselineOffset = 1
+                                BaselineOffset = 1,
+                                FontSize = _baseFontSize * 0.9
                             };
                             var codeBorder = new Border
                             {
                                 Child = codeText,
-                                Padding = new Thickness(4, 1, 4, 1),
-                                Background = new SolidColorBrush(Color.FromRgb(245, 245, 245)),
+                                Padding = new Thickness(6, 2, 6, 2),
+                                Background = new SolidColorBrush(Color.FromRgb(246, 248, 250)),
+                                BorderBrush = new SolidColorBrush(Color.FromRgb(234, 236, 239)),
+                                BorderThickness = new Thickness(1),
                                 VerticalAlignment = VerticalAlignment.Center,
-                                CornerRadius = new CornerRadius(3),
+                                CornerRadius = new CornerRadius(4),
                                 Margin = new Thickness(0, 0, 0, -1)
                             };
                             textBlock.Inlines?.Add(new InlineUIContainer { Child = codeBorder });
@@ -226,23 +229,36 @@ namespace MarkdownViewer.Core.Implementations
         {
             var grid = new Grid();
 
+            var border = new Border
+            {
+                Background = new SolidColorBrush(Color.FromRgb(246, 248, 250)),
+                BorderBrush = new SolidColorBrush(Color.FromRgb(234, 236, 239)),
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(6),
+                Margin = new Thickness(0, 0, 0, 10)
+            };
+
             var textBox = new TextBlock
             {
                 Text = codeBlock.Code,
                 FontFamily = new FontFamily("Consolas, Menlo, Monaco, monospace"),
                 FontSize = _baseFontSize,
-                Background = new SolidColorBrush(Color.FromRgb(245, 245, 245)),
-                Padding = new Thickness(8),
-                Margin = new Thickness(0, 0, 0, 10)
+                Padding = new Thickness(16, 12, 16, 12),
+                TextWrapping = TextWrapping.Wrap
             };
 
             var copyButton = new Button
             {
                 Content = "复制",
-                Margin = new Thickness(4),
+                Margin = new Thickness(8),
                 HorizontalAlignment = HorizontalAlignment.Right,
                 VerticalAlignment = VerticalAlignment.Top,
-                IsVisible = false
+                IsVisible = false,
+                Padding = new Thickness(8, 4, 8, 4),
+                CornerRadius = new CornerRadius(4),
+                Background = new SolidColorBrush(Color.FromRgb(246, 248, 250)),
+                BorderBrush = new SolidColorBrush(Color.FromRgb(234, 236, 239)),
+                BorderThickness = new Thickness(1)
             };
 
             copyButton.Click += async (s, e) =>
@@ -254,8 +270,9 @@ namespace MarkdownViewer.Core.Implementations
                 }
             };
 
-            grid.Children.Add(textBox);
-            Grid.SetColumn(textBox, 0);
+            border.Child = textBox;
+            grid.Children.Add(border);
+            Grid.SetColumn(border, 0);
 
             grid.Children.Add(copyButton);
             Grid.SetColumn(copyButton, 0);
