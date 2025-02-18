@@ -130,3 +130,17 @@ This project uses the following open source components:
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 For third-party license notices, please see [THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt).
+
+## 📝 更新日志
+
+### v1.0.1 (2024-03)
+
+#### 新功能
+- ✨ 增强了 Markdown 渲染器的格式化功能
+- ✨ 增强了引用元素以支持内联元素
+- 🌐 添加了多语言支持（代码块复制按钮）
+
+#### 改进
+- 🔧 改进了 Markdown 渲染和解析功能
+- 📝 改进了代码块渲染效果
+- 🔗 改进了链接处理机制
