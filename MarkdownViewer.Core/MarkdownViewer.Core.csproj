@@ -1,26 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFrameworks>net9.0;net8.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     
     <!-- NuGet Package Info -->
     <PackageId>MarkdownViewer.Core</PackageId>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <Authors>LITTOMA</Authors>
     <Company>LITTOMA</Company>
     <Description>A powerful Markdown viewer control for Avalonia applications with support for custom rendering and styling.
-
-Changelog v1.0.1:
-- Enhanced Markdown renderer formatting and features
-- Enhanced quote elements with inline element support
-- Added multilingual support for code block copy button
-- Improved Markdown rendering and parsing
-- Improved code block rendering
-- Enhanced link handling mechanism
-- Added logging support
     </Description>
+    <PackageReleaseNotes>
+      - Added support for .NET 8 LTS
+      - Now supports both .NET 8 and .NET 9
+    </PackageReleaseNotes>
     <PackageTags>markdown;avalonia;viewer;control;xaml</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/LITTOMA/Avalonia.MarkdownViewer</PackageProjectUrl>

@@ -131,16 +131,22 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 For third-party license notices, please see [THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt).
 
-## 📝 更新日志
+## 📝 Changelog
+
+### v1.0.2 (2024-05)
+
+#### New Features
+- ✨ Added support for .NET 8 LTS
+- 🔄 Now supports both .NET 8 and .NET 9
 
 ### v1.0.1 (2024-03)
 
-#### 新功能
-- ✨ 增强了 Markdown 渲染器的格式化功能
-- ✨ 增强了引用元素以支持内联元素
-- 🌐 添加了多语言支持（代码块复制按钮）
+#### New Features
+- ✨ Enhanced Markdown renderer formatting capabilities
+- ✨ Improved blockquote elements to support inline elements
+- 🌐 Added multilingual support (code block copy button)
 
-#### 改进
-- 🔧 改进了 Markdown 渲染和解析功能
-- 📝 改进了代码块渲染效果
-- 🔗 改进了链接处理机制
+#### Improvements
+- 🔧 Improved Markdown rendering and parsing functionality
+- 📝 Enhanced code block rendering
+- 🔗 Improved link handling mechanism

@@ -111,11 +111,11 @@ public partial class MainWindow : Window
     private void LoadSampleMarkdown()
     {
         const string sampleMarkdown =
-            @"# Markdown 编辑器示例
+            @"# Markdown Editor Example
 
-## 基本格式
+## Basic Formatting
 
-这是一个**粗体**文本示例，这是*斜体*文本。
+This is a **bold** text example, this is *italic* text.
 
 
 ### Roadmap
@@ -127,38 +127,38 @@ public partial class MainWindow : Window
 - [ ] Custom styling options
 
 
-### 列表示例
+### List Example
 
-- 项目 1
-- 项目 2
-  - 子项目 2.1
-  - 子项目 2.2
-- 项目 3
+- Item 1
+- Item 2
+  - Sub-item 2.1
+  - Sub-item 2.2
+- Item 3
 
-### 代码示例
+### Code Example
 
 ```csharp
 public class Example
 {
     public void HelloWorld()
     {
-        Console.WriteLine(""你好，世界！"");
+        Console.WriteLine(""Hello, World!"");
     }
 }
 ```
 
-### 链接和图片
+### Links and Images
 
-链接：[Avalonia UI](https://avaloniaui.net/)
+Link: [Avalonia UI](https://avaloniaui.net/)
 
-图片：![Avalonia Logo](https://avatars.githubusercontent.com/u/14075148?s=200&v=4)
+Image: ![Avalonia Logo](https://avatars.githubusercontent.com/u/14075148?s=200&v=4)
 
-### 表格
+### Table
 
-| 标题1 | 标题2 | 标题3 |
-|-------|-------|-------|
-| 普通文本 | **粗体文本** | `代码文本` |
-| [链接](http://example.com) | *斜体文本* | 其他内容 |
+| Header1 | Header2 | Header3 |
+|---------|---------|---------|
+| Normal text | **Bold text** | `Code text` |
+| [Link](http://example.com) | *Italic text* | Other content |
 ";
 
         MarkdownViewer.MarkdownText = sampleMarkdown;
