@@ -1,0 +1,87 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <!-- Markdown 渲染器主题资源 -->
+    <Style Selector=":is(Control)">
+        <Style.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.ThemeDictionaries>
+                    <!-- 亮色主题 -->
+                    <ResourceDictionary x:Key="Light">
+                        <SolidColorBrush x:Key="MarkdownCodeBackground" Color="#F6F8FA"/>
+                        <SolidColorBrush x:Key="MarkdownCodeBorder" Color="#EAEAEF"/>
+                        <SolidColorBrush x:Key="MarkdownQuoteBackground" Color="#F9F9F9"/>
+                        <SolidColorBrush x:Key="MarkdownQuoteForeground" Color="#6C6C6C"/>
+                        <SolidColorBrush x:Key="MarkdownBorderColor" Color="#E5E5E5"/>
+                        <SolidColorBrush x:Key="MarkdownLinkForeground" Color="#007AFF"/>
+                        <SolidColorBrush x:Key="MarkdownTableHeaderBackground" Color="#F7F7F7"/>
+                    </ResourceDictionary>
+                    
+                    <!-- 暗色主题 -->
+                    <ResourceDictionary x:Key="Dark">
+                        <SolidColorBrush x:Key="MarkdownCodeBackground" Color="#161B22"/>
+                        <SolidColorBrush x:Key="MarkdownCodeBorder" Color="#30363D"/>
+                        <SolidColorBrush x:Key="MarkdownQuoteBackground" Color="#161B22"/>
+                        <SolidColorBrush x:Key="MarkdownQuoteForeground" Color="#8B949E"/>
+                        <SolidColorBrush x:Key="MarkdownBorderColor" Color="#30363D"/>
+                        <SolidColorBrush x:Key="MarkdownLinkForeground" Color="#58A6FF"/>
+                        <SolidColorBrush x:Key="MarkdownTableHeaderBackground" Color="#21262D"/>
+                    </ResourceDictionary>
+                    
+                    <!-- 默认主题（跟随系统） -->
+                    <ResourceDictionary x:Key="Default">
+                        <SolidColorBrush x:Key="MarkdownCodeBackground" Color="#F6F8FA"/>
+                        <SolidColorBrush x:Key="MarkdownCodeBorder" Color="#EAEAEF"/>
+                        <SolidColorBrush x:Key="MarkdownQuoteBackground" Color="#F9F9F9"/>
+                        <SolidColorBrush x:Key="MarkdownQuoteForeground" Color="#6C6C6C"/>
+                        <SolidColorBrush x:Key="MarkdownBorderColor" Color="#E5E5E5"/>
+                        <SolidColorBrush x:Key="MarkdownLinkForeground" Color="#007AFF"/>
+                        <SolidColorBrush x:Key="MarkdownTableHeaderBackground" Color="#F7F7F7"/>
+                    </ResourceDictionary>
+                </ResourceDictionary.ThemeDictionaries>
+            </ResourceDictionary>
+        </Style.Resources>
+    </Style>
+    
+    <!-- 为了向后兼容，也在全局范围定义这些资源 -->
+    <Style Selector=":is(Application)">
+        <Style.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.ThemeDictionaries>
+                    <!-- 亮色主题 -->
+                    <ResourceDictionary x:Key="Light">
+                        <SolidColorBrush x:Key="MarkdownCodeBackground" Color="#F6F8FA"/>
+                        <SolidColorBrush x:Key="MarkdownCodeBorder" Color="#EAEAEF"/>
+                        <SolidColorBrush x:Key="MarkdownQuoteBackground" Color="#F9F9F9"/>
+                        <SolidColorBrush x:Key="MarkdownQuoteForeground" Color="#6C6C6C"/>
+                        <SolidColorBrush x:Key="MarkdownBorderColor" Color="#E5E5E5"/>
+                        <SolidColorBrush x:Key="MarkdownLinkForeground" Color="#007AFF"/>
+                        <SolidColorBrush x:Key="MarkdownTableHeaderBackground" Color="#F7F7F7"/>
+                    </ResourceDictionary>
+                    
+                    <!-- 暗色主题 -->
+                    <ResourceDictionary x:Key="Dark">
+                        <SolidColorBrush x:Key="MarkdownCodeBackground" Color="#161B22"/>
+                        <SolidColorBrush x:Key="MarkdownCodeBorder" Color="#30363D"/>
+                        <SolidColorBrush x:Key="MarkdownQuoteBackground" Color="#161B22"/>
+                        <SolidColorBrush x:Key="MarkdownQuoteForeground" Color="#8B949E"/>
+                        <SolidColorBrush x:Key="MarkdownBorderColor" Color="#30363D"/>
+                        <SolidColorBrush x:Key="MarkdownLinkForeground" Color="#58A6FF"/>
+                        <SolidColorBrush x:Key="MarkdownTableHeaderBackground" Color="#21262D"/>
+                    </ResourceDictionary>
+                    
+                    <!-- 默认主题（跟随系统） -->
+                    <ResourceDictionary x:Key="Default">
+                        <SolidColorBrush x:Key="MarkdownCodeBackground" Color="#F6F8FA"/>
+                        <SolidColorBrush x:Key="MarkdownCodeBorder" Color="#EAEAEF"/>
+                        <SolidColorBrush x:Key="MarkdownQuoteBackground" Color="#F9F9F9"/>
+                        <SolidColorBrush x:Key="MarkdownQuoteForeground" Color="#6C6C6C"/>
+                        <SolidColorBrush x:Key="MarkdownBorderColor" Color="#E5E5E5"/>
+                        <SolidColorBrush x:Key="MarkdownLinkForeground" Color="#007AFF"/>
+                        <SolidColorBrush x:Key="MarkdownTableHeaderBackground" Color="#F7F7F7"/>
+                    </ResourceDictionary>
+                </ResourceDictionary.ThemeDictionaries>
+            </ResourceDictionary>
+        </Style.Resources>
+    </Style>
+</Styles> 

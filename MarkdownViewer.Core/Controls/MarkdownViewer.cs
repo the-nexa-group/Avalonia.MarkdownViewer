@@ -19,6 +19,9 @@ namespace MarkdownViewer.Core.Controls
 
         static MarkdownViewer()
         {
+            // 初始化主题资源
+            MarkdownTheme.Initialize();
+
             var httpClient = new HttpClient();
             var imageCacheLogger = NullLogger<MemoryImageCache>.Instance;
             var imageCache = new MemoryImageCache(httpClient, imageCacheLogger);
@@ -93,6 +96,25 @@ namespace MarkdownViewer.Core.Controls
         public MarkdownViewer()
         {
             Renderer = DefaultRenderer;
+
+            // 监听主题变化
+            MarkdownTheme.ThemeChanged += OnThemeChanged;
+
+            // 当控件被卸载时清理事件订阅
+            this.DetachedFromVisualTree += OnDetachedFromVisualTree;
+        }
+
+        private void OnThemeChanged(object? sender, EventArgs e)
+        {
+            // 主题变化时重新渲染内容
+            RenderContent();
+        }
+
+        private void OnDetachedFromVisualTree(object? sender, VisualTreeAttachmentEventArgs e)
+        {
+            // 清理事件订阅
+            MarkdownTheme.ThemeChanged -= OnThemeChanged;
+            this.DetachedFromVisualTree -= OnDetachedFromVisualTree;
         }
 
         private void RenderContent()

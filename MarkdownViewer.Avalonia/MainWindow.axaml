@@ -21,33 +21,86 @@
         <Style Selector="TextBox#MarkdownEditor">
             <Setter Property="Text" Value="{Binding #MarkdownViewer.MarkdownText, Mode=TwoWay}"/>
         </Style>
+        
+        <Style Selector="ToggleButton.ThemeToggle">
+            <Setter Property="Width" Value="40"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="CornerRadius" Value="20"/>
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltHighBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        
+        <Style Selector="ToggleButton.ThemeToggle:checked">
+            <Setter Property="Background" Value="{DynamicResource SystemAccentColor}"/>
+        </Style>
+        
+        <Style Selector="ToggleButton.ThemeToggle > TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="16"/>
+        </Style>
     </Window.Styles>
 
-    <Grid Name="MainGrid">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" MinWidth="200"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*" MinWidth="200"/>
-        </Grid.ColumnDefinitions>
+    <DockPanel>
+        <!-- 顶部工具栏 -->
+        <Border DockPanel.Dock="Top" 
+                Background="{DynamicResource SystemControlBackgroundChromeMediumBrush}"
+                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                BorderThickness="0,0,0,1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- 标题区域 -->
+                <TextBlock Grid.Column="0" 
+                          Text="Markdown Viewer" 
+                          FontSize="16" 
+                          FontWeight="SemiBold"
+                          VerticalAlignment="Center"
+                          Margin="16,8"/>
+                
+                <!-- 主题切换按钮 -->
+                <ToggleButton Grid.Column="1" 
+                             Name="ThemeToggleButton"
+                             Classes="ThemeToggle"
+                             Click="OnThemeToggleClick"
+                             ToolTip.Tip="Switch Dark/Light Theme">
+                    <TextBlock Name="ThemeIcon" Text="🌙"/>
+                </ToggleButton>
+            </Grid>
+        </Border>
 
-        <!-- 编辑器区域 -->
-        <TextBox 
-            Name="MarkdownEditor"
-            Grid.Column="0"
-            AcceptsReturn="True"
-            TextWrapping="Wrap"
-            FontFamily="Consolas"
-            Margin="4"/>
+        <!-- 主内容区域 -->
+        <Grid Name="MainGrid">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" MinWidth="200"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*" MinWidth="200"/>
+            </Grid.ColumnDefinitions>
 
-        <!-- 分隔条 -->
-        <GridSplitter 
-            Grid.Column="1"
-            ResizeDirection="Columns"
-            ResizeBehavior="PreviousAndNext"/>
+            <!-- 编辑器区域 -->
+            <TextBox 
+                Name="MarkdownEditor"
+                Grid.Column="0"
+                AcceptsReturn="True"
+                TextWrapping="Wrap"
+                FontFamily="Consolas"
+                Margin="4"/>
 
-        <!-- 预览区域 -->
-        <ScrollViewer Grid.Column="2" Margin="4">
-            <md:MarkdownViewer Name="MarkdownViewer" />
-        </ScrollViewer>
-    </Grid>
+            <!-- 分隔条 -->
+            <GridSplitter 
+                Grid.Column="1"
+                ResizeDirection="Columns"
+                ResizeBehavior="PreviousAndNext"/>
+
+            <!-- 预览区域 -->
+            <ScrollViewer Grid.Column="2" Margin="4">
+                <md:MarkdownViewer Name="MarkdownViewer" />
+            </ScrollViewer>
+        </Grid>
+    </DockPanel>
 </Window>

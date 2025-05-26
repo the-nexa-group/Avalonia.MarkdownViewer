@@ -1,7 +1,9 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Styling;
 using MarkdownViewer.Core.Implementations;
 using MarkdownViewer.Core.Services;
 using Microsoft.Extensions.Logging;
@@ -39,6 +41,50 @@ public partial class MainWindow : Window
 
         // 绑定窗口大小变更事件
         PropertyChanged += MainWindow_PropertyChanged;
+
+        // 初始化主题状态
+        InitializeThemeToggle();
+    }
+
+    private void InitializeThemeToggle()
+    {
+        var app = Application.Current;
+        if (app != null)
+        {
+            var currentTheme = app.RequestedThemeVariant;
+            var themeToggleButton = this.FindControl<ToggleButton>("ThemeToggleButton");
+            var themeIcon = this.FindControl<TextBlock>("ThemeIcon");
+
+            if (themeToggleButton != null && themeIcon != null)
+            {
+                bool isDarkTheme = currentTheme == ThemeVariant.Dark;
+                themeToggleButton.IsChecked = isDarkTheme;
+                themeIcon.Text = isDarkTheme ? "☀️" : "🌙";
+            }
+        }
+    }
+
+    private void OnThemeToggleClick(object? sender, RoutedEventArgs e)
+    {
+        var app = Application.Current;
+        if (app != null)
+        {
+            var themeToggleButton = sender as ToggleButton;
+            var themeIcon = this.FindControl<TextBlock>("ThemeIcon");
+
+            if (themeToggleButton != null && themeIcon != null)
+            {
+                bool isDarkTheme = themeToggleButton.IsChecked == true;
+
+                // 切换主题
+                app.RequestedThemeVariant = isDarkTheme ? ThemeVariant.Dark : ThemeVariant.Light;
+
+                // 更新图标
+                themeIcon.Text = isDarkTheme ? "☀️" : "🌙";
+
+                logger.LogInformation($"Theme switched to: {(isDarkTheme ? "Dark" : "Light")}");
+            }
+        }
     }
 
     private void MainWindow_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
