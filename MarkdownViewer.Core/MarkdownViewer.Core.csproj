@@ -7,14 +7,13 @@
     
     <!-- NuGet Package Info -->
     <PackageId>MarkdownViewer.Core</PackageId>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
     <Authors>LITTOMA</Authors>
     <Company>LITTOMA</Company>
     <Description>A powerful Markdown viewer control for Avalonia applications with support for custom rendering and styling.
     </Description>
     <PackageReleaseNotes>
-      - Added support for .NET 8 LTS
-      - Now supports both .NET 8 and .NET 9
+      - Added automatic theme change detection and content re-rendering
     </PackageReleaseNotes>
     <PackageTags>markdown;avalonia;viewer;control;xaml</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

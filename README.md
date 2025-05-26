@@ -1,6 +1,12 @@
 # Avalonia Markdown Viewer
 
+[![NuGet](https://img.shields.io/nuget/v/MarkdownViewer.Core.svg)](https://www.nuget.org/packages/MarkdownViewer.Core/)
+
+
 A modern, cross-platform Markdown viewer built with Avalonia UI framework, providing smooth rendering and interaction experience for Markdown documents.
+
+![images/demo-light.png](images/demo-light.png)
+![images/demo-dark.png](images/demo-dark.png)
 
 ## ✨ Features
 
@@ -22,8 +28,8 @@ Status: Active Development
 - [X] Basic Markdown rendering
 - [X] Image handling and caching
 - [X] Link handling
+- [X] Dark/Light theme support
 - [ ] Code syntax highlighting
-- [ ] Dark/Light theme support
 - [ ] Custom styling options
 
 ## 📝 Markdown Support
@@ -133,18 +139,16 @@ For third-party license notices, please see [THIRD-PARTY-NOTICES.txt](THIRD-PART
 
 ## 📝 Changelog
 
-### v1.0.2 (2024-05)
+### v1.0.3
+
+#### New Features
+- 🔄 Added automatic theme change detection and content re-rendering
+
+### v1.0.2
 
 #### New Features
 - ✨ Added support for .NET 8 LTS
 - 🔄 Now supports both .NET 8 and .NET 9
-
-### v1.0.1 (2024-03)
-
-#### New Features
-- ✨ Enhanced Markdown renderer formatting capabilities
-- ✨ Improved blockquote elements to support inline elements
-- 🌐 Added multilingual support (code block copy button)
 
 #### Improvements
 - 🔧 Improved Markdown rendering and parsing functionality
