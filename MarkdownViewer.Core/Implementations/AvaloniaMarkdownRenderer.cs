@@ -16,16 +16,12 @@ using MarkdownViewer.Core.Controls;
 using MarkdownViewer.Core.Elements;
 using MarkdownViewer.Core.Services;
 using System.IO;
+using Avalonia.Styling;
 
 namespace MarkdownViewer.Core.Implementations
 {
     public class AvaloniaMarkdownRenderer : IMarkdownRenderer
     {
-        private static readonly SolidColorBrush LinkForeground = new(Color.FromRgb(0, 122, 255));
-        private static readonly SolidColorBrush CodeBackground = new(Color.FromRgb(246, 248, 250));
-        private static readonly SolidColorBrush CodeBorder = new(Color.FromRgb(234, 236, 239));
-        private static readonly SolidColorBrush QuoteBackground = new(Color.FromRgb(249, 249, 249));
-        private static readonly SolidColorBrush BorderColor = new(Color.FromRgb(229, 229, 229));
         private static readonly FontFamily CodeFontFamily =
             new("Consolas, Menlo, Monaco, monospace");
 
@@ -43,6 +39,56 @@ namespace MarkdownViewer.Core.Implementations
         {
             _imageCache = imageCache;
             _logger = logger;
+
+            // 初始化主题资源
+            MarkdownTheme.Initialize();
+        }
+
+        // 获取主题相关的颜色
+        private IBrush GetThemeBrush(string resourceKey, Color fallbackColor)
+        {
+            return MarkdownTheme.GetThemeBrush(resourceKey, fallbackColor);
+        }
+
+        private IBrush GetCodeBackground()
+        {
+            // 优先使用自定义的Markdown主题资源
+            return GetThemeBrush("MarkdownCodeBackground", Color.FromRgb(246, 248, 250));
+        }
+
+        private IBrush GetCodeBorder()
+        {
+            return GetThemeBrush("MarkdownCodeBorder", Color.FromRgb(234, 236, 239));
+        }
+
+        private IBrush GetQuoteBackground()
+        {
+            return GetThemeBrush("MarkdownQuoteBackground", Color.FromRgb(249, 249, 249));
+        }
+
+        private IBrush GetBorderColor()
+        {
+            return GetThemeBrush("MarkdownBorderColor", Color.FromRgb(229, 229, 229));
+        }
+
+        private IBrush GetLinkForeground()
+        {
+            return GetThemeBrush("MarkdownLinkForeground", Color.FromRgb(0, 122, 255));
+        }
+
+        private IBrush GetTableHeaderBackground()
+        {
+            return GetThemeBrush("MarkdownTableHeaderBackground", Color.FromRgb(247, 247, 247));
+        }
+
+        private IBrush GetQuoteForeground()
+        {
+            return GetThemeBrush("MarkdownQuoteForeground", Color.FromRgb(108, 108, 108));
+        }
+
+        private IBrush GetHorizontalRuleBackground()
+        {
+            return GetThemeBrush("MarkdownBorderColor", Color.FromRgb(229, 229, 229));
         }
 
         public Control RenderDocument(string markdown)
@@ -201,7 +247,7 @@ namespace MarkdownViewer.Core.Implementations
                                 {
                                     Text = link.Text ?? string.Empty,
                                     TextDecorations = TextDecorations.Underline,
-                                    Foreground = new SolidColorBrush(Color.FromRgb(0, 122, 255))
+                                    Foreground = GetLinkForeground()
                                 },
                                 Background = Brushes.Transparent,
                                 BorderThickness = new Thickness(0),
@@ -231,8 +277,8 @@ namespace MarkdownViewer.Core.Implementations
                             {
                                 Child = codeText,
                                 Padding = new Thickness(6, 2, 6, 2),
-                                Background = new SolidColorBrush(Color.FromRgb(246, 248, 250)),
-                                BorderBrush = new SolidColorBrush(Color.FromRgb(234, 236, 239)),
+                                Background = GetCodeBackground(),
+                                BorderBrush = GetCodeBorder(),
                                 BorderThickness = new Thickness(1),
                                 VerticalAlignment = VerticalAlignment.Center,
                                 CornerRadius = new CornerRadius(4),
@@ -302,8 +348,8 @@ namespace MarkdownViewer.Core.Implementations
 
             var border = new Border
             {
-                Background = new SolidColorBrush(Color.FromRgb(246, 248, 250)),
-                BorderBrush = new SolidColorBrush(Color.FromRgb(234, 236, 239)),
+                Background = GetCodeBackground(),
+                BorderBrush = GetCodeBorder(),
                 BorderThickness = new Thickness(1),
                 CornerRadius = new CornerRadius(6),
                 Margin = new Thickness(0, 0, 0, 10)
@@ -327,8 +373,8 @@ namespace MarkdownViewer.Core.Implementations
                 IsVisible = false,
                 Padding = new Thickness(8, 4, 8, 4),
                 CornerRadius = new CornerRadius(4),
-                Background = new SolidColorBrush(Color.FromRgb(246, 248, 250)),
-                BorderBrush = new SolidColorBrush(Color.FromRgb(234, 236, 239)),
+                Background = GetCodeBackground(),
+                BorderBrush = GetCodeBorder(),
                 BorderThickness = new Thickness(1)
             };
 
@@ -554,7 +600,7 @@ namespace MarkdownViewer.Core.Implementations
             {
                 TextWrapping = TextWrapping.Wrap,
                 Margin = new Thickness(10),
-                Foreground = new SolidColorBrush(Color.FromRgb(108, 108, 108))
+                Foreground = GetQuoteForeground()
             };
 
             if (quote.Inlines != null)
@@ -599,8 +645,8 @@ namespace MarkdownViewer.Core.Implementations
                         {
                             Child = codeText,
                             Padding = new Thickness(6, 2, 6, 2),
-                            Background = new SolidColorBrush(Color.FromRgb(246, 248, 250)),
-                            BorderBrush = new SolidColorBrush(Color.FromRgb(234, 236, 239)),
+                            Background = GetCodeBackground(),
+                            BorderBrush = GetCodeBorder(),
                             BorderThickness = new Thickness(1),
                             VerticalAlignment = VerticalAlignment.Center,
                             CornerRadius = new CornerRadius(4),
@@ -614,7 +660,7 @@ namespace MarkdownViewer.Core.Implementations
                         {
                             Text = link.Text,
                             TextDecorations = TextDecorations.Underline,
-                            Foreground = new SolidColorBrush(Color.FromRgb(0, 122, 255))
+                            Foreground = GetLinkForeground()
                         };
                         textBlock.Inlines?.Add(run);
                     }
@@ -636,9 +682,9 @@ namespace MarkdownViewer.Core.Implementations
             return new Border
             {
                 Child = textBlock,
-                BorderBrush = new SolidColorBrush(Color.FromRgb(229, 229, 229)),
+                BorderBrush = GetBorderColor(),
                 BorderThickness = new Thickness(4, 0, 0, 0),
-                Background = new SolidColorBrush(Color.FromRgb(249, 249, 249)),
+                Background = GetQuoteBackground(),
                 Margin = new Thickness(0, 0, 0, 10),
                 Padding = new Thickness(10)
             };
@@ -691,8 +737,8 @@ namespace MarkdownViewer.Core.Implementations
                             {
                                 Child = codeText,
                                 Padding = new Thickness(6, 2, 6, 2),
-                                Background = new SolidColorBrush(Color.FromRgb(246, 248, 250)),
-                                BorderBrush = new SolidColorBrush(Color.FromRgb(234, 236, 239)),
+                                Background = GetCodeBackground(),
+                                BorderBrush = GetCodeBorder(),
                                 BorderThickness = new Thickness(1),
                                 VerticalAlignment = VerticalAlignment.Center,
                                 CornerRadius = new CornerRadius(4),
@@ -706,7 +752,7 @@ namespace MarkdownViewer.Core.Implementations
                             {
                                 Text = link.Text,
                                 TextDecorations = TextDecorations.Underline,
-                                Foreground = new SolidColorBrush(Color.FromRgb(0, 122, 255))
+                                Foreground = GetLinkForeground()
                             };
                             textBlock.Inlines?.Add(run);
                         }
@@ -746,7 +792,7 @@ namespace MarkdownViewer.Core.Implementations
             var textBlock = new TextBlock
             {
                 TextWrapping = TextWrapping.Wrap,
-                Foreground = new SolidColorBrush(Color.FromRgb(0, 122, 255)),
+                Foreground = GetLinkForeground(),
                 TextDecorations = TextDecorations.Underline,
                 Cursor = new Cursor(StandardCursorType.Hand)
             };
@@ -858,7 +904,7 @@ namespace MarkdownViewer.Core.Implementations
                 {
                     Text = link.Text ?? string.Empty,
                     TextDecorations = TextDecorations.Underline,
-                    Foreground = new SolidColorBrush(Color.FromRgb(0, 122, 255))
+                    Foreground = GetLinkForeground()
                 };
                 textBlock.Inlines.Add(run);
             }
@@ -933,7 +979,7 @@ namespace MarkdownViewer.Core.Implementations
             // 创建一个带圆角的外边框容器
             var outerBorder = new Border
             {
-                BorderBrush = BorderColor,
+                BorderBrush = GetBorderColor(),
                 BorderThickness = new Thickness(1),
                 CornerRadius = new CornerRadius(6),
                 Margin = new Thickness(0, 0, 0, 10),
@@ -1013,11 +1059,9 @@ namespace MarkdownViewer.Core.Implementations
                     return new Border
                     {
                         Child = img,
-                        BorderBrush = BorderColor,
+                        BorderBrush = GetBorderColor(),
                         BorderThickness = new Thickness(1),
-                        Background = isHeader
-                            ? new SolidColorBrush(Color.FromRgb(247, 247, 247))
-                            : null,
+                        Background = isHeader ? GetTableHeaderBackground() : null,
                         Padding = new Thickness(2)
                     };
                 }
@@ -1038,11 +1082,9 @@ namespace MarkdownViewer.Core.Implementations
                     return new Border
                     {
                         Child = button,
-                        BorderBrush = BorderColor,
+                        BorderBrush = GetBorderColor(),
                         BorderThickness = new Thickness(1),
-                        Background = isHeader
-                            ? new SolidColorBrush(Color.FromRgb(247, 247, 247))
-                            : null,
+                        Background = isHeader ? GetTableHeaderBackground() : null,
                         Padding = new Thickness(2)
                     };
                 }
@@ -1055,11 +1097,9 @@ namespace MarkdownViewer.Core.Implementations
                 return new Border
                 {
                     Child = codeBorder,
-                    BorderBrush = BorderColor,
+                    BorderBrush = GetBorderColor(),
                     BorderThickness = new Thickness(1),
-                    Background = isHeader
-                        ? new SolidColorBrush(Color.FromRgb(247, 247, 247))
-                        : null,
+                    Background = isHeader ? GetTableHeaderBackground() : null,
                     Padding = new Thickness(2)
                 };
             }
@@ -1074,9 +1114,9 @@ namespace MarkdownViewer.Core.Implementations
             return new Border
             {
                 Child = textBlock,
-                BorderBrush = BorderColor,
+                BorderBrush = GetBorderColor(),
                 BorderThickness = new Thickness(1),
-                Background = isHeader ? new SolidColorBrush(Color.FromRgb(247, 247, 247)) : null
+                Background = isHeader ? GetTableHeaderBackground() : null
             };
         }
 
@@ -1108,7 +1148,7 @@ namespace MarkdownViewer.Core.Implementations
                     Text = header ?? string.Empty,
                     FontWeight = FontWeight.Bold,
                     Padding = new Thickness(5),
-                    Background = new SolidColorBrush(Color.FromRgb(245, 245, 245))
+                    Background = GetTableHeaderBackground()
                 };
                 Grid.SetRow(headerCell, 0);
                 Grid.SetColumn(headerCell, i);
@@ -1184,7 +1224,7 @@ namespace MarkdownViewer.Core.Implementations
             return new Border
             {
                 Height = 1,
-                Background = new SolidColorBrush(Color.FromRgb(229, 229, 229)),
+                Background = GetHorizontalRuleBackground(),
                 Margin = new Thickness(0, 10, 0, 10)
             };
         }
@@ -1197,7 +1237,7 @@ namespace MarkdownViewer.Core.Implementations
                 {
                     Text = text,
                     TextDecorations = TextDecorations.Underline,
-                    Foreground = LinkForeground
+                    Foreground = GetLinkForeground()
                 },
                 Background = Brushes.Transparent,
                 BorderThickness = new Thickness(0),
@@ -1230,8 +1270,8 @@ namespace MarkdownViewer.Core.Implementations
             {
                 Child = codeText,
                 Padding = new Thickness(6, 2, 6, 2),
-                Background = CodeBackground,
-                BorderBrush = CodeBorder,
+                Background = GetCodeBackground(),
+                BorderBrush = GetCodeBorder(),
                 BorderThickness = new Thickness(1),
                 VerticalAlignment = VerticalAlignment.Center,
                 CornerRadius = new CornerRadius(4),
