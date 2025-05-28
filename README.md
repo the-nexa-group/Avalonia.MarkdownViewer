@@ -5,8 +5,8 @@
 
 A modern, cross-platform Markdown viewer built with Avalonia UI framework, providing smooth rendering and interaction experience for Markdown documents.
 
-![images/demo-light.png](images/demo-light.png)
-![images/demo-dark.png](images/demo-dark.png)
+![images/demo-light.png](https://raw.githubusercontent.com/LITTOMA/Avalonia.MarkdownViewer/refs/heads/master/images/demo-light.png)
+![images/demo-dark.png](https://raw.githubusercontent.com/LITTOMA/Avalonia.MarkdownViewer/refs/heads/master/images/demo-dark.png)
 
 ## ✨ Features
 
@@ -14,7 +14,6 @@ A modern, cross-platform Markdown viewer built with Avalonia UI framework, provi
 - 📝 High-quality Markdown rendering powered by Markdig engine
 - 🖼️ Image preloading and caching mechanism
 - 🔗 Built-in link handler
-- 🎨 Modern Fluent Design interface
 - 🚀 High-performance rendering implementation
 - ⚡ Memory-optimized image compression
 
