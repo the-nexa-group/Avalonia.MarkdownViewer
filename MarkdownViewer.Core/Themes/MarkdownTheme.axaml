@@ -1,12 +1,12 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     
-    <!-- Markdown 渲染器主题资源 -->
+    <!-- Markdown renderer theme resources -->
     <Style Selector=":is(Control)">
         <Style.Resources>
             <ResourceDictionary>
                 <ResourceDictionary.ThemeDictionaries>
-                    <!-- 亮色主题 -->
+                    <!-- Light theme -->
                     <ResourceDictionary x:Key="Light">
                         <SolidColorBrush x:Key="MarkdownCodeBackground" Color="#F6F8FA"/>
                         <SolidColorBrush x:Key="MarkdownCodeBorder" Color="#EAEAEF"/>
@@ -17,7 +17,7 @@
                         <SolidColorBrush x:Key="MarkdownTableHeaderBackground" Color="#F7F7F7"/>
                     </ResourceDictionary>
                     
-                    <!-- 暗色主题 -->
+                    <!-- Dark theme -->
                     <ResourceDictionary x:Key="Dark">
                         <SolidColorBrush x:Key="MarkdownCodeBackground" Color="#161B22"/>
                         <SolidColorBrush x:Key="MarkdownCodeBorder" Color="#30363D"/>
@@ -28,7 +28,7 @@
                         <SolidColorBrush x:Key="MarkdownTableHeaderBackground" Color="#21262D"/>
                     </ResourceDictionary>
                     
-                    <!-- 默认主题（跟随系统） -->
+                    <!-- Default theme (follows system) -->
                     <ResourceDictionary x:Key="Default">
                         <SolidColorBrush x:Key="MarkdownCodeBackground" Color="#F6F8FA"/>
                         <SolidColorBrush x:Key="MarkdownCodeBorder" Color="#EAEAEF"/>
@@ -43,12 +43,12 @@
         </Style.Resources>
     </Style>
     
-    <!-- 为了向后兼容，也在全局范围定义这些资源 -->
+    <!-- For backward compatibility, also define these resources in global scope -->
     <Style Selector=":is(Application)">
         <Style.Resources>
             <ResourceDictionary>
                 <ResourceDictionary.ThemeDictionaries>
-                    <!-- 亮色主题 -->
+                    <!-- Light theme -->
                     <ResourceDictionary x:Key="Light">
                         <SolidColorBrush x:Key="MarkdownCodeBackground" Color="#F6F8FA"/>
                         <SolidColorBrush x:Key="MarkdownCodeBorder" Color="#EAEAEF"/>
@@ -59,7 +59,7 @@
                         <SolidColorBrush x:Key="MarkdownTableHeaderBackground" Color="#F7F7F7"/>
                     </ResourceDictionary>
                     
-                    <!-- 暗色主题 -->
+                    <!-- Dark theme -->
                     <ResourceDictionary x:Key="Dark">
                         <SolidColorBrush x:Key="MarkdownCodeBackground" Color="#161B22"/>
                         <SolidColorBrush x:Key="MarkdownCodeBorder" Color="#30363D"/>
@@ -70,7 +70,7 @@
                         <SolidColorBrush x:Key="MarkdownTableHeaderBackground" Color="#21262D"/>
                     </ResourceDictionary>
                     
-                    <!-- 默认主题（跟随系统） -->
+                    <!-- Default theme (follows system) -->
                     <ResourceDictionary x:Key="Default">
                         <SolidColorBrush x:Key="MarkdownCodeBackground" Color="#F6F8FA"/>
                         <SolidColorBrush x:Key="MarkdownCodeBorder" Color="#EAEAEF"/>

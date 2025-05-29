@@ -44,7 +44,7 @@
     </Window.Styles>
 
     <DockPanel>
-        <!-- 顶部工具栏 -->
+        <!-- Top toolbar -->
         <Border DockPanel.Dock="Top" 
                 Background="{DynamicResource SystemControlBackgroundChromeMediumBrush}"
                 BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
@@ -55,7 +55,7 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 
-                <!-- 标题区域 -->
+                <!-- Title area -->
                 <TextBlock Grid.Column="0" 
                           Text="Markdown Viewer" 
                           FontSize="16" 
@@ -63,7 +63,7 @@
                           VerticalAlignment="Center"
                           Margin="16,8"/>
                 
-                <!-- 主题切换按钮 -->
+                <!-- Theme toggle button -->
                 <ToggleButton Grid.Column="1" 
                              Name="ThemeToggleButton"
                              Classes="ThemeToggle"
@@ -74,7 +74,7 @@
             </Grid>
         </Border>
 
-        <!-- 主内容区域 -->
+        <!-- Main content area -->
         <Grid Name="MainGrid">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" MinWidth="200"/>
@@ -82,7 +82,7 @@
                 <ColumnDefinition Width="*" MinWidth="200"/>
             </Grid.ColumnDefinitions>
 
-            <!-- 编辑器区域 -->
+            <!-- Editor area -->
             <TextBox 
                 Name="MarkdownEditor"
                 Grid.Column="0"
@@ -91,13 +91,13 @@
                 FontFamily="Consolas"
                 Margin="4"/>
 
-            <!-- 分隔条 -->
+            <!-- Splitter -->
             <GridSplitter 
                 Grid.Column="1"
                 ResizeDirection="Columns"
                 ResizeBehavior="PreviousAndNext"/>
 
-            <!-- 预览区域 -->
+            <!-- Preview area -->
             <ScrollViewer Grid.Column="2" Margin="4">
                 <md:MarkdownViewer Name="MarkdownViewer" />
             </ScrollViewer>

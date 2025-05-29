@@ -80,7 +80,7 @@ namespace MarkdownViewer.Core.Services
                 }
                 else
                 {
-                    // 对于其他平台，尝试使用通用方法
+                    // For other platforms, try using generic method
                     var psi = new ProcessStartInfo { FileName = url, UseShellExecute = true };
                     Process.Start(psi);
                 }
@@ -94,7 +94,7 @@ namespace MarkdownViewer.Core.Services
                     url,
                     RuntimeInformation.OSDescription
                 );
-                // 可以在这里添加错误通知UI的代码
+                // Error notification UI code can be added here
             }
         }
     }

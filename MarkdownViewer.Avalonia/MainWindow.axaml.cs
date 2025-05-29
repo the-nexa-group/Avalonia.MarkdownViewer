@@ -31,18 +31,18 @@ public partial class MainWindow : Window
         //    NullLogger<AvaloniaMarkdownRenderer>.Instance
         //);
 
-        // 初始化链接处理器
+        // Initialize link handler
         DefaultLinkHandler.Initialize(logger);
 
         //MarkdownViewer.Renderer = renderer;
 
-        // 设置初始示例文本
+        // Set initial sample text
         LoadSampleMarkdown();
 
-        // 绑定窗口大小变更事件
+        // Bind window size change event
         PropertyChanged += MainWindow_PropertyChanged;
 
-        // 初始化主题状态
+        // Initialize theme state
         InitializeThemeToggle();
     }
 
@@ -76,10 +76,10 @@ public partial class MainWindow : Window
             {
                 bool isDarkTheme = themeToggleButton.IsChecked == true;
 
-                // 切换主题
+                // Switch theme
                 app.RequestedThemeVariant = isDarkTheme ? ThemeVariant.Dark : ThemeVariant.Light;
 
-                // 更新图标
+                // Update icon
                 themeIcon.Text = isDarkTheme ? "☀️" : "🌙";
 
                 logger.LogInformation($"Theme switched to: {(isDarkTheme ? "Dark" : "Light")}");
@@ -98,7 +98,7 @@ public partial class MainWindow : Window
     private void UpdateLayoutOrientation()
     {
         var bounds = Bounds;
-        if (bounds.Width < bounds.Height * 1.2) // 当宽度小于高度的1.2倍时切换为上下布局
+        if (bounds.Width < bounds.Height * 1.2) // Switch to vertical layout when width is less than 1.2 times height
         {
             MainGrid.ColumnDefinitions.Clear();
             MainGrid.RowDefinitions.Clear();
@@ -125,7 +125,7 @@ public partial class MainWindow : Window
                 Grid.SetColumn(scrollViewer, 0);
             }
         }
-        else // 切换为左右布局
+        else // Switch to horizontal layout
         {
             MainGrid.RowDefinitions.Clear();
             MainGrid.ColumnDefinitions.Clear();

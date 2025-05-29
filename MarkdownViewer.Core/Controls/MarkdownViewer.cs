@@ -19,7 +19,7 @@ namespace MarkdownViewer.Core.Controls
 
         static MarkdownViewer()
         {
-            // 初始化主题资源
+            // Initialize theme resources
             MarkdownTheme.Initialize();
 
             var httpClient = new HttpClient();
@@ -97,22 +97,22 @@ namespace MarkdownViewer.Core.Controls
         {
             Renderer = DefaultRenderer;
 
-            // 监听主题变化
+            // Listen for theme changes
             MarkdownTheme.ThemeChanged += OnThemeChanged;
 
-            // 当控件被卸载时清理事件订阅
+            // Clean up event subscriptions when control is unloaded
             this.DetachedFromVisualTree += OnDetachedFromVisualTree;
         }
 
         private void OnThemeChanged(object? sender, EventArgs e)
         {
-            // 主题变化时重新渲染内容
+            // Re-render content when theme changes
             RenderContent();
         }
 
         private void OnDetachedFromVisualTree(object? sender, VisualTreeAttachmentEventArgs e)
         {
-            // 清理事件订阅
+            // Clean up event subscriptions
             MarkdownTheme.ThemeChanged -= OnThemeChanged;
             this.DetachedFromVisualTree -= OnDetachedFromVisualTree;
         }

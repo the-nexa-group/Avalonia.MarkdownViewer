@@ -45,13 +45,13 @@ namespace MarkdownViewer.Core.Implementations
                 if (cancellationToken.IsCancellationRequested)
                     yield break;
 
-                // 检查是否进入或离开代码块
+                // Check if entering or leaving code block
                 if (line.StartsWith("```"))
                 {
                     isInCodeBlock = !isInCodeBlock;
                 }
 
-                // 只有在不在代码块内且遇到空行时才处理当前块
+                // Only process current block when not in code block and encountering empty line
                 if (!isInCodeBlock && string.IsNullOrWhiteSpace(line) && currentBlock.Length > 0)
                 {
                     foreach (var element in ParseBlock(currentBlock.ToString()))
@@ -301,7 +301,7 @@ namespace MarkdownViewer.Core.Implementations
                         Level = level
                     };
 
-                    // 处理子列表
+                    // Process sub-list
                     var subList = listItem.Descendants<ListBlock>().FirstOrDefault();
                     if (subList != null)
                     {
@@ -327,10 +327,10 @@ namespace MarkdownViewer.Core.Implementations
                     var paragraph = listItem.Descendants<ParagraphBlock>().FirstOrDefault();
                     if (paragraph?.Inline != null)
                     {
-                        // 处理所有内联元素
+                        // Process all inline elements
                         text = ProcessInlineElements(paragraph.Inline);
 
-                        // 检查是否包含任务列表标记并提取
+                        // Check if contains task list marker and extract
                         if (
                             text.StartsWith("[ ] ")
                             || text.StartsWith("[x] ")
@@ -338,7 +338,7 @@ namespace MarkdownViewer.Core.Implementations
                         )
                         {
                             isChecked = text.StartsWith("[x] ") || text.StartsWith("[X] ");
-                            text = text.Substring(4); // 跳过"[ ] "或"[x] "
+                            text = text.Substring(4); // Skip "[ ] " or "[x] "
                         }
                     }
 
@@ -351,7 +351,7 @@ namespace MarkdownViewer.Core.Implementations
                         Level = level
                     };
 
-                    // 处理子列表
+                    // Process sub-list
                     var childList = listItem.Descendants<ListBlock>().FirstOrDefault();
                     if (childList != null)
                     {

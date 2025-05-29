@@ -7,7 +7,7 @@ using System;
 namespace MarkdownViewer.Core
 {
     /// <summary>
-    /// Markdown 主题资源管理器
+    /// Markdown theme resource manager
     /// </summary>
     public static class MarkdownTheme
     {
@@ -16,12 +16,12 @@ namespace MarkdownViewer.Core
         private static ThemeVariant? _lastThemeVariant;
 
         /// <summary>
-        /// 主题变化事件
+        /// Theme change event
         /// </summary>
         public static event EventHandler? ThemeChanged;
 
         /// <summary>
-        /// 初始化 Markdown 主题资源
+        /// Initialize Markdown theme resources
         /// </summary>
         public static void Initialize()
         {
@@ -32,7 +32,7 @@ namespace MarkdownViewer.Core
 
                 try
                 {
-                    // 加载主题资源
+                    // Load theme resources
                     var themeUri = new Uri(
                         "avares://MarkdownViewer.Core/Themes/MarkdownTheme.axaml"
                     );
@@ -40,7 +40,7 @@ namespace MarkdownViewer.Core
 
                     if (theme != null && Application.Current?.Styles != null)
                     {
-                        // 检查是否已经添加过主题
+                        // Check if theme has already been added
                         bool themeExists = false;
                         foreach (var style in Application.Current.Styles)
                         {
@@ -57,7 +57,7 @@ namespace MarkdownViewer.Core
                         }
                     }
 
-                    // 监听主题变化
+                    // Listen for theme changes
                     if (Application.Current != null)
                     {
                         _lastThemeVariant = Application.Current.ActualThemeVariant;
@@ -68,7 +68,7 @@ namespace MarkdownViewer.Core
                 }
                 catch (Exception ex)
                 {
-                    // 如果加载主题失败，记录错误但不抛出异常
+                    // If theme loading fails, log error but don't throw exception
                     System.Diagnostics.Debug.WriteLine(
                         $"Failed to load Markdown theme: {ex.Message}"
                     );
@@ -93,17 +93,17 @@ namespace MarkdownViewer.Core
         }
 
         /// <summary>
-        /// 获取主题画刷资源
+        /// Get theme brush resource
         /// </summary>
-        /// <param name="resourceKey">资源键</param>
-        /// <param name="fallbackColor">回退颜色</param>
-        /// <returns>画刷资源</returns>
+        /// <param name="resourceKey">Resource key</param>
+        /// <param name="fallbackColor">Fallback color</param>
+        /// <returns>Brush resource</returns>
         public static IBrush GetThemeBrush(string resourceKey, Color fallbackColor)
         {
-            // 确保主题已初始化
+            // Ensure theme is initialized
             Initialize();
 
-            // 尝试从应用程序资源中获取
+            // Try to get from application resources
             if (
                 Application.Current?.TryGetResource(
                     resourceKey,
@@ -116,12 +116,12 @@ namespace MarkdownViewer.Core
                 return brush;
             }
 
-            // 回退到默认颜色
+            // Fallback to default color
             return new SolidColorBrush(fallbackColor);
         }
 
         /// <summary>
-        /// 清理资源
+        /// Cleanup resources
         /// </summary>
         public static void Cleanup()
         {

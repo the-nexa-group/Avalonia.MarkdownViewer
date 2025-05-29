@@ -19,7 +19,7 @@ namespace MarkdownViewer.Core.Services
             HttpClient httpClient,
             ILogger<MemoryImageCache> logger,
             long maxCacheSizeInBytes = 100 * 1024 * 1024
-        ) // 默认100MB
+        ) // Default 100MB
         {
             _httpClient = httpClient;
             _logger = logger;

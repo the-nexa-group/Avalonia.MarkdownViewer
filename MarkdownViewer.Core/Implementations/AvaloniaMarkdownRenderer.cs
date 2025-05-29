@@ -40,11 +40,11 @@ namespace MarkdownViewer.Core.Implementations
             _imageCache = imageCache;
             _logger = logger;
 
-            // 初始化主题资源
+            // Initialize theme resources
             MarkdownTheme.Initialize();
         }
 
-        // 获取主题相关的颜色
+        // Get theme-related colors
         private IBrush GetThemeBrush(string resourceKey, Color fallbackColor)
         {
             return MarkdownTheme.GetThemeBrush(resourceKey, fallbackColor);
@@ -52,7 +52,7 @@ namespace MarkdownViewer.Core.Implementations
 
         private IBrush GetCodeBackground()
         {
-            // 优先使用自定义的Markdown主题资源
+            // Prioritize custom Markdown theme resources
             return GetThemeBrush("MarkdownCodeBackground", Color.FromRgb(246, 248, 250));
         }
 
@@ -182,7 +182,7 @@ namespace MarkdownViewer.Core.Implementations
 
         private Control RenderParagraph(ParagraphElement paragraph)
         {
-            // 如果段落只包含一个图片元素，直接返回图片控件
+            // If paragraph contains only one image element, return image control directly
             if (paragraph.Inlines.Count == 1 && paragraph.Inlines[0] is ImageElement image)
             {
                 return RenderImage(image);
@@ -215,7 +215,7 @@ namespace MarkdownViewer.Core.Implementations
                             };
                             LoadImageAsync(inlineImage, img.Source);
 
-                            // 创建一个内联容器来包含图片
+                            // Create an inline container to contain the image
                             var inlineContainer = new InlineUIContainer { Child = inlineImage };
                             textBlock.Inlines?.Add(inlineContainer);
                             break;
@@ -295,7 +295,7 @@ namespace MarkdownViewer.Core.Implementations
 
         private string GetCopyButtonText()
         {
-            // 获取当前系统的语言代码
+            // Get current system language code
             var currentCulture = CultureInfo.CurrentCulture.TwoLetterISOLanguageName.ToLower();
 
             return currentCulture switch
@@ -338,7 +338,7 @@ namespace MarkdownViewer.Core.Implementations
                 "lv" => "Kopēt",
                 "lt" => "Kopijuoti",
                 "no" => "Kopier",
-                _ => "Copy" // 默认英文
+                _ => "Copy" // Default English
             };
         }
 
@@ -486,7 +486,7 @@ namespace MarkdownViewer.Core.Implementations
                         Spacing = 5
                     };
 
-                    // 根据层级和列表类型选择不同的符号
+                    // Select different symbols based on level and list type
                     string bulletText = list.IsOrdered
                         ? $"{list.Items.IndexOf(item) + 1}."
                         : (item.Level == 0 ? "•" : "◦");
@@ -514,7 +514,7 @@ namespace MarkdownViewer.Core.Implementations
 
                     contentPanel.Children?.Add(content);
 
-                    // 处理子项
+                    // Process sub-items
                     if (item.Children != null && item.Children.Count > 0)
                     {
                         var subList = new ListElement
@@ -554,7 +554,7 @@ namespace MarkdownViewer.Core.Implementations
                     var checkbox = new CheckBox
                     {
                         IsChecked = item.IsChecked,
-                        IsEnabled = false, // 设置为只读
+                        IsEnabled = false, // Set to read-only
                         VerticalAlignment = VerticalAlignment.Top
                     };
 
@@ -573,7 +573,7 @@ namespace MarkdownViewer.Core.Implementations
 
                     contentPanel.Children?.Add(content);
 
-                    // 处理子项
+                    // Process sub-items
                     if (item.Children != null && item.Children.Count > 0)
                     {
                         var subList = new TaskListElement
@@ -869,7 +869,7 @@ namespace MarkdownViewer.Core.Implementations
                 var checkbox = new CheckBox
                 {
                     IsChecked = item.IsChecked,
-                    IsEnabled = false, // 设置为只读
+                    IsEnabled = false, // Set to read-only
                     VerticalAlignment = VerticalAlignment.Top
                 };
 
@@ -923,7 +923,7 @@ namespace MarkdownViewer.Core.Implementations
                     using var stream = new MemoryStream(imageData);
                     var bitmap = new Bitmap(stream);
 
-                    // 在 UI 线程上设置图片源
+                    // Set image source on UI thread
                     Dispatcher.UIThread.Post(() =>
                     {
                         img.Source = bitmap;
@@ -944,7 +944,7 @@ namespace MarkdownViewer.Core.Implementations
 
         private IImage CreateErrorPlaceholder(string message)
         {
-            // 创建一个简单的错误占位图
+            // Create a simple error placeholder
             var drawingGroup = new DrawingGroup();
             using (var context = drawingGroup.Open())
             {
@@ -976,14 +976,14 @@ namespace MarkdownViewer.Core.Implementations
 
         private Control RenderTable(TableElement table)
         {
-            // 创建一个带圆角的外边框容器
+            // Create an outer border container with rounded corners
             var outerBorder = new Border
             {
                 BorderBrush = GetBorderColor(),
                 BorderThickness = new Thickness(1),
                 CornerRadius = new CornerRadius(6),
                 Margin = new Thickness(0, 0, 0, 10),
-                ClipToBounds = true // 确保内容不会超出圆角边框
+                ClipToBounds = true // Ensure content doesn't exceed rounded border
             };
 
             var grid = new Grid();
@@ -1035,7 +1035,7 @@ namespace MarkdownViewer.Core.Implementations
                 Padding = new Thickness(5)
             };
 
-            // 处理图片标记
+            // Handle image markup
             if (content.StartsWith("![") && content.Contains("]("))
             {
                 var altEnd = content.IndexOf("]");
@@ -1051,7 +1051,7 @@ namespace MarkdownViewer.Core.Implementations
                     {
                         Stretch = Stretch.Uniform,
                         StretchDirection = StretchDirection.DownOnly,
-                        MaxHeight = 100, // 在表格中使用较小的图片高度
+                        MaxHeight = 100, // Use smaller image height in table
                         Margin = new Thickness(0)
                     };
                     LoadImageAsync(img, url);
@@ -1066,7 +1066,7 @@ namespace MarkdownViewer.Core.Implementations
                     };
                 }
             }
-            // 处理链接标记
+            // Handle link markup
             else if (content.StartsWith("[") && content.Contains("]("))
             {
                 var textEnd = content.IndexOf("]");
@@ -1089,7 +1089,7 @@ namespace MarkdownViewer.Core.Implementations
                     };
                 }
             }
-            // 处理代码标记
+            // Handle code markup
             else if (content.StartsWith("`") && content.EndsWith("`"))
             {
                 var code = content.Trim('`');
@@ -1104,7 +1104,7 @@ namespace MarkdownViewer.Core.Implementations
                 };
             }
 
-            // 普通文本
+            // Plain text
             textBlock.Text = content;
             if (isHeader)
             {
