@@ -293,52 +293,52 @@ namespace MarkdownViewer.Core.Implementations
             return textBlock;
         }
 
-        private string GetCopyButtonText()
+        private Tuple<string, string> GetCopyButtonText()
         {
             // 获取当前系统的语言代码
             var currentCulture = CultureInfo.CurrentCulture.TwoLetterISOLanguageName.ToLower();
 
             return currentCulture switch
             {
-                "zh" => "复制",
-                "ja" => "コピー",
-                "ko" => "복사",
-                "fr" => "Copier",
-                "de" => "Kopieren",
-                "es" => "Copiar",
-                "it" => "Copia",
-                "ru" => "Копировать",
-                "pt" => "Copiar",
-                "nl" => "Kopiëren",
-                "pl" => "Kopiuj",
-                "tr" => "Kopyala",
-                "ar" => "نسخ",
-                "hi" => "कॉपी",
-                "th" => "คัดลอก",
-                "vi" => "Sao chép",
-                "cs" => "Kopírovat",
-                "sv" => "Kopiera",
-                "el" => "Αντιγραφή",
-                "he" => "העתק",
-                "hu" => "Másolás",
-                "ro" => "Copiază",
-                "uk" => "Копіювати",
-                "fi" => "Kopioi",
-                "da" => "Kopiér",
-                "id" => "Salin",
-                "ms" => "Salin",
-                "bn" => "কপি",
-                "fa" => "کپی",
-                "bg" => "Копирай",
-                "sk" => "Kopírovať",
-                "hr" => "Kopiraj",
-                "sr" => "Копирај",
-                "sl" => "Kopiraj",
-                "et" => "Kopeeri",
-                "lv" => "Kopēt",
-                "lt" => "Kopijuoti",
-                "no" => "Kopier",
-                _ => "Copy" // 默认英文
+                "zh" => Tuple.Create("复制", "已复制"),
+                "ja" => Tuple.Create("コピー", "コピーしました"),
+                "ko" => Tuple.Create("복사", "복사됨"),
+                "fr" => Tuple.Create("Copier", "Copié"),
+                "de" => Tuple.Create("Kopieren", "Kopiert"),
+                "es" => Tuple.Create("Copiar", "Copiado"),
+                "it" => Tuple.Create("Copia", "Copiato"),
+                "ru" => Tuple.Create("Копировать", "Скопировано"),
+                "pt" => Tuple.Create("Copiar", "Copiado"),
+                "nl" => Tuple.Create("Kopiëren", "Gekopieerd"),
+                "pl" => Tuple.Create("Kopiuj", "Skopiowano"),
+                "tr" => Tuple.Create("Kopyala", "Kopyalandı"),
+                "ar" => Tuple.Create("نسخ", "تم النسخ"),
+                "hi" => Tuple.Create("कॉपी", "कॉपी किया गया"),
+                "th" => Tuple.Create("คัดลอก", "คัดลอกแล้ว"),
+                "vi" => Tuple.Create("Sao chép", "Đã sao chép"),
+                "cs" => Tuple.Create("Kopírovat", "Zkopírováno"),
+                "sv" => Tuple.Create("Kopiera", "Kopierat"),
+                "el" => Tuple.Create("Αντιγραφή", "Αντιγράφηκε"),
+                "he" => Tuple.Create("העתק", "הועתק"),
+                "hu" => Tuple.Create("Másolás", "Másolva"),
+                "ro" => Tuple.Create("Copiază", "Copiat"),
+                "uk" => Tuple.Create("Копіювати", "Скопійовано"),
+                "fi" => Tuple.Create("Kopioi", "Kopioitu"),
+                "da" => Tuple.Create("Kopiér", "Kopieret"),
+                "id" => Tuple.Create("Salin", "Disalin"),
+                "ms" => Tuple.Create("Salin", "Disalin"),
+                "bn" => Tuple.Create("কপি", "কপি করা হয়েছে"),
+                "fa" => Tuple.Create("کپی", "کپی شد"),
+                "bg" => Tuple.Create("Копирай", "Копирано"),
+                "sk" => Tuple.Create("Kopírovať", "Skopírované"),
+                "hr" => Tuple.Create("Kopiraj", "Kopirano"),
+                "sr" => Tuple.Create("Копирај", "Копирано"),
+                "sl" => Tuple.Create("Kopiraj", "Kopirano"),
+                "et" => Tuple.Create("Kopeeri", "Kopeeritud"),
+                "lv" => Tuple.Create("Kopēt", "Nokopēts"),
+                "lt" => Tuple.Create("Kopijuoti", "Nukopijuota"),
+                "no" => Tuple.Create("Kopier", "Kopiert"),
+                _ => Tuple.Create("Copy", "Copied") // 默认英文
             };
         }
 
@@ -364,9 +364,10 @@ namespace MarkdownViewer.Core.Implementations
                 TextWrapping = TextWrapping.Wrap
             };
 
+            var (copyText, copiedText) = GetCopyButtonText();
             var copyButton = new Button
             {
-                Content = GetCopyButtonText(),
+                Content = copyText,
                 Margin = new Thickness(8),
                 HorizontalAlignment = HorizontalAlignment.Right,
                 VerticalAlignment = VerticalAlignment.Top,
@@ -375,15 +376,24 @@ namespace MarkdownViewer.Core.Implementations
                 CornerRadius = new CornerRadius(4),
                 Background = GetCodeBackground(),
                 BorderBrush = GetCodeBorder(),
-                BorderThickness = new Thickness(1)
+                BorderThickness = new Thickness(1),
+                Tag = false, // Copy button state
             };
 
             copyButton.Click += async (s, e) =>
             {
+                if (copyButton.Tag is true)
+                    return;
+
                 var topLevel = TopLevel.GetTopLevel(copyButton);
                 if (topLevel?.Clipboard != null)
                 {
                     await topLevel.Clipboard.SetTextAsync(codeBlock.Code);
+                    copyButton.Content = copiedText;
+                    copyButton.Tag = true;
+                    await Task.Delay(2000);
+                    copyButton.Content = copyText;
+                    copyButton.Tag = false;
                 }
             };
 
