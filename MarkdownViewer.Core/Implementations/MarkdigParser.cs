@@ -275,6 +275,7 @@ namespace MarkdownViewer.Core.Implementations
                 EmphasisInline emphasis => ProcessInlineElements(emphasis),
                 LineBreakInline => string.Empty,
                 TaskList taskList => taskList.Checked ? "[x] " : "[ ] ",
+                CodeInline code => code.Content,
                 _ => inline.ToString() ?? string.Empty
             };
         }
@@ -287,10 +288,12 @@ namespace MarkdownViewer.Core.Implementations
                 if (item is ListItemBlock listItem)
                 {
                     var text = string.Empty;
+                    var inlines = new List<MarkdownElement>();
                     var paragraph = listItem.Descendants<ParagraphBlock>().FirstOrDefault();
                     if (paragraph?.Inline != null)
                     {
                         text = ProcessInlineElements(paragraph.Inline);
+                        inlines = ProcessInlines(paragraph.Inline);
                     }
 
                     var element = new ListItemElement
@@ -298,7 +301,8 @@ namespace MarkdownViewer.Core.Implementations
                         RawText = item.ToString() ?? string.Empty,
                         ElementType = Elements.MarkdownElementType.ListItem,
                         Text = text,
-                        Level = level
+                        Level = level,
+                        Inlines = inlines
                     };
 
                     // Process sub-list
@@ -323,12 +327,14 @@ namespace MarkdownViewer.Core.Implementations
                 {
                     var text = string.Empty;
                     var isChecked = false;
+                    var inlines = new List<MarkdownElement>();
 
                     var paragraph = listItem.Descendants<ParagraphBlock>().FirstOrDefault();
                     if (paragraph?.Inline != null)
                     {
                         // Process all inline elements
                         text = ProcessInlineElements(paragraph.Inline);
+                        inlines = ProcessInlines(paragraph.Inline);
 
                         // Check if contains task list marker and extract
                         if (
@@ -339,6 +345,16 @@ namespace MarkdownViewer.Core.Implementations
                         {
                             isChecked = text.StartsWith("[x] ") || text.StartsWith("[X] ");
                             text = text.Substring(4); // Skip "[ ] " or "[x] "
+                            
+                            // Remove the task list marker from inlines if it's the first text element
+                            if (inlines.Count > 0 && inlines[0] is TextElement textElement)
+                            {
+                                var firstText = textElement.Text;
+                                if (firstText.StartsWith("[ ] ") || firstText.StartsWith("[x] ") || firstText.StartsWith("[X] "))
+                                {
+                                    textElement.Text = firstText.Substring(4);
+                                }
+                            }
                         }
                     }
 
@@ -348,7 +364,8 @@ namespace MarkdownViewer.Core.Implementations
                         ElementType = Elements.MarkdownElementType.TaskListItem,
                         Text = text,
                         IsChecked = isChecked,
-                        Level = level
+                        Level = level,
+                        Inlines = inlines
                     };
 
                     // Process sub-list

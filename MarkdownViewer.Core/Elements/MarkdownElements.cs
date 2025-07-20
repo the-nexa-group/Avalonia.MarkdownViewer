@@ -72,6 +72,7 @@ namespace MarkdownViewer.Core.Elements
         public required string Text { get; set; }
         public int Level { get; set; }
         public List<ListItemElement> Children { get; set; } = new();
+        public List<MarkdownElement> Inlines { get; set; } = new();
     }
 
     public class QuoteElement : MarkdownElement
@@ -110,5 +111,6 @@ namespace MarkdownViewer.Core.Elements
         public bool IsChecked { get; set; }
         public int Level { get; set; }
         public List<TaskListItemElement> Children { get; set; } = new();
+        public List<MarkdownElement> Inlines { get; set; } = new();
     }
 }
