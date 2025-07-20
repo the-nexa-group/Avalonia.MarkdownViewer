@@ -7,14 +7,14 @@
     
     <!-- NuGet Package Info -->
     <PackageId>MarkdownViewer.Core</PackageId>
-    <Version>1.0.4</Version>
+    <Version>1.0.5</Version>
     <Authors>LITTOMA</Authors>
     <Company>LITTOMA</Company>
     <Description>A powerful Markdown viewer control for Avalonia applications with support for custom rendering and styling.
     </Description>
     <PackageReleaseNotes>
-      - Added automatic theme change detection and content re-rendering
-    </PackageReleaseNotes>
+		- Fix inline code rendering issue within lists.
+	</PackageReleaseNotes>
     <PackageTags>markdown;avalonia;viewer;control;xaml</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/LITTOMA/Avalonia.MarkdownViewer</PackageProjectUrl>

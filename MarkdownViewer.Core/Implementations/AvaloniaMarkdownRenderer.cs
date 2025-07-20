@@ -91,6 +91,109 @@ namespace MarkdownViewer.Core.Implementations
             return GetThemeBrush("MarkdownBorderColor", Color.FromRgb(229, 229, 229));
         }
 
+        private void RenderInlineElements(TextBlock textBlock, List<MarkdownElement> inlines)
+        {
+            if (inlines == null || inlines.Count == 0)
+                return;
+
+            foreach (var inline in inlines)
+            {
+                if (inline == null)
+                    continue;
+
+                switch (inline)
+                {
+                    case Elements.TextElement text:
+                        textBlock.Inlines?.Add(new Run { Text = text.Text ?? string.Empty });
+                        break;
+                    case EmphasisElement emphasis:
+                        RenderEmphasisInline(textBlock, emphasis);
+                        break;
+                    case CodeInlineElement code:
+                        textBlock.Inlines?.Add(new InlineUIContainer { Child = CreateCodeBorder(code.Code ?? string.Empty) });
+                        break;
+                    case LinkElement link:
+                        textBlock.Inlines?.Add(new InlineUIContainer { Child = CreateLinkButton(link.Text ?? string.Empty, link.Url) });
+                        break;
+                    case ImageElement image:
+                        var img = new Image
+                        {
+                            Stretch = Stretch.Uniform,
+                            StretchDirection = StretchDirection.DownOnly,
+                            MaxHeight = 400,
+                            Margin = new Thickness(0, 0, 0, 10)
+                        };
+                        LoadImageAsync(img, image.Source);
+                        textBlock.Inlines?.Add(new InlineUIContainer { Child = img });
+                        break;
+                }
+            }
+        }
+
+        private void RenderEmphasisInline(TextBlock textBlock, EmphasisElement emphasis)
+        {
+            if (emphasis.IsStrong)
+            {
+                var bold = new Bold
+                {
+                    Inlines = { new Run { Text = emphasis.Text ?? string.Empty } }
+                };
+                textBlock.Inlines?.Add(bold);
+            }
+            else
+            {
+                var italic = new Italic
+                {
+                    Inlines = { new Run { Text = emphasis.Text ?? string.Empty } }
+                };
+                textBlock.Inlines?.Add(italic);
+            }
+        }
+
+        private TextBlock CreateListItemContent(ListItemElement item)
+        {
+            var content = new TextBlock
+            {
+                TextWrapping = TextWrapping.Wrap,
+                VerticalAlignment = VerticalAlignment.Top
+            };
+
+            // Process inline elements if available
+            if (item.Inlines != null && item.Inlines.Count > 0)
+            {
+                RenderInlineElements(content, item.Inlines);
+            }
+            else
+            {
+                // Fallback to plain text
+                content.Text = item.Text ?? string.Empty;
+            }
+
+            return content;
+        }
+
+        private TextBlock CreateTaskListItemContent(TaskListItemElement item)
+        {
+            var content = new TextBlock
+            {
+                TextWrapping = TextWrapping.Wrap,
+                VerticalAlignment = VerticalAlignment.Top
+            };
+
+            // Process inline elements if available
+            if (item.Inlines != null && item.Inlines.Count > 0)
+            {
+                RenderInlineElements(content, item.Inlines);
+            }
+            else
+            {
+                // Fallback to plain text
+                content.Text = item.Text ?? string.Empty;
+            }
+
+            return content;
+        }
+
         public Control RenderDocument(string markdown)
         {
             var parser = new MarkdigParser();
@@ -198,96 +301,7 @@ namespace MarkdownViewer.Core.Implementations
 
             if (paragraph.Inlines != null)
             {
-                foreach (var inline in paragraph.Inlines)
-                {
-                    if (inline == null)
-                        continue;
-
-                    switch (inline)
-                    {
-                        case ImageElement img:
-                            var inlineImage = new Image
-                            {
-                                Stretch = Stretch.Uniform,
-                                StretchDirection = StretchDirection.DownOnly,
-                                MaxHeight = 400,
-                                Margin = new Thickness(0, 0, 0, 10)
-                            };
-                            LoadImageAsync(inlineImage, img.Source);
-
-                            // Create an inline container to contain the image
-                            var inlineContainer = new InlineUIContainer { Child = inlineImage };
-                            textBlock.Inlines?.Add(inlineContainer);
-                            break;
-                        case Elements.TextElement text:
-                            textBlock.Inlines?.Add(new Run { Text = text.Text ?? string.Empty });
-                            break;
-                        case EmphasisElement emphasis:
-                            if (emphasis.IsStrong)
-                            {
-                                var bold = new Bold
-                                {
-                                    Inlines = { new Run { Text = emphasis.Text ?? string.Empty } }
-                                };
-                                textBlock.Inlines?.Add(bold);
-                            }
-                            else
-                            {
-                                var italic = new Italic
-                                {
-                                    Inlines = { new Run { Text = emphasis.Text ?? string.Empty } }
-                                };
-                                textBlock.Inlines?.Add(italic);
-                            }
-                            break;
-                        case LinkElement link:
-                            var button = new Button
-                            {
-                                Content = new TextBlock
-                                {
-                                    Text = link.Text ?? string.Empty,
-                                    TextDecorations = TextDecorations.Underline,
-                                    Foreground = GetLinkForeground()
-                                },
-                                Background = Brushes.Transparent,
-                                BorderThickness = new Thickness(0),
-                                Padding = new Thickness(0),
-                                Cursor = new Cursor(StandardCursorType.Hand)
-                            };
-
-                            button.Click += (s, e) =>
-                            {
-                                DefaultLinkHandler.HandleLink(link.Url);
-                                LinkClicked?.Invoke(this, link.Url);
-                            };
-
-                            textBlock.Inlines?.Add(new InlineUIContainer { Child = button });
-                            break;
-                        case CodeInlineElement code:
-                            var codeText = new TextBlock
-                            {
-                                Text = code.Code ?? string.Empty,
-                                FontFamily = new FontFamily("Consolas, Menlo, Monaco, monospace"),
-                                VerticalAlignment = VerticalAlignment.Center,
-                                TextAlignment = TextAlignment.Center,
-                                BaselineOffset = 1,
-                                FontSize = _baseFontSize * 0.9
-                            };
-                            var codeBorder = new Border
-                            {
-                                Child = codeText,
-                                Padding = new Thickness(6, 2, 6, 2),
-                                Background = GetCodeBackground(),
-                                BorderBrush = GetCodeBorder(),
-                                BorderThickness = new Thickness(1),
-                                VerticalAlignment = VerticalAlignment.Center,
-                                CornerRadius = new CornerRadius(4),
-                                Margin = new Thickness(0, 0, 0, -1)
-                            };
-                            textBlock.Inlines?.Add(new InlineUIContainer { Child = codeBorder });
-                            break;
-                    }
-                }
+                RenderInlineElements(textBlock, paragraph.Inlines);
             }
 
             return textBlock;
@@ -422,41 +436,9 @@ namespace MarkdownViewer.Core.Implementations
                 return;
 
             textBlock.Inlines.Clear();
-            foreach (var inline in paragraph.Inlines)
+            if (paragraph.Inlines != null)
             {
-                if (inline == null)
-                    continue;
-
-                switch (inline)
-                {
-                    case Elements.TextElement text:
-                        textBlock.Inlines.Add(new Run { Text = text.Text ?? string.Empty });
-                        break;
-                    case EmphasisElement emphasis:
-                        var emphasisRun = new Run { Text = emphasis.Text ?? string.Empty };
-                        textBlock.Inlines.Add(
-                            emphasis.IsStrong
-                                ? new Bold { Inlines = { emphasisRun } }
-                                : new Italic { Inlines = { emphasisRun } }
-                        );
-                        break;
-                    case CodeInlineElement code:
-                        textBlock.Inlines.Add(
-                            new InlineUIContainer
-                            {
-                                Child = CreateCodeBorder(code.Code ?? string.Empty)
-                            }
-                        );
-                        break;
-                    case LinkElement link:
-                        textBlock.Inlines.Add(
-                            new InlineUIContainer
-                            {
-                                Child = CreateLinkButton(link.Text ?? string.Empty, link.Url)
-                            }
-                        );
-                        break;
-                }
+                RenderInlineElements(textBlock, paragraph.Inlines);
             }
         }
 
@@ -515,13 +497,8 @@ namespace MarkdownViewer.Core.Implementations
                         Spacing = 5
                     };
 
-                    var content = new TextBlock
-                    {
-                        Text = item.Text ?? string.Empty,
-                        TextWrapping = TextWrapping.Wrap,
-                        VerticalAlignment = VerticalAlignment.Top
-                    };
-
+                    // Create content using helper method
+                    var content = CreateListItemContent(item);
                     contentPanel.Children?.Add(content);
 
                     // Process sub-items
@@ -574,13 +551,8 @@ namespace MarkdownViewer.Core.Implementations
                         Spacing = 5
                     };
 
-                    var content = new TextBlock
-                    {
-                        Text = item.Text ?? string.Empty,
-                        TextWrapping = TextWrapping.Wrap,
-                        VerticalAlignment = VerticalAlignment.Top
-                    };
-
+                    // Create content using helper method
+                    var content = CreateTaskListItemContent(item);
                     contentPanel.Children?.Add(content);
 
                     // Process sub-items
@@ -615,78 +587,7 @@ namespace MarkdownViewer.Core.Implementations
 
             if (quote.Inlines != null)
             {
-                foreach (var inline in quote.Inlines)
-                {
-                    if (inline is Elements.TextElement text)
-                    {
-                        textBlock.Inlines?.Add(new Run { Text = text.Text ?? string.Empty });
-                    }
-                    else if (inline is EmphasisElement emphasis)
-                    {
-                        if (emphasis.IsStrong)
-                        {
-                            var bold = new Bold
-                            {
-                                Inlines = { new Run { Text = emphasis.Text ?? string.Empty } }
-                            };
-                            textBlock.Inlines?.Add(bold);
-                        }
-                        else
-                        {
-                            var italic = new Italic
-                            {
-                                Inlines = { new Run { Text = emphasis.Text ?? string.Empty } }
-                            };
-                            textBlock.Inlines?.Add(italic);
-                        }
-                    }
-                    else if (inline is CodeInlineElement code)
-                    {
-                        var codeText = new TextBlock
-                        {
-                            Text = code.Code ?? string.Empty,
-                            FontFamily = new FontFamily("Consolas, Menlo, Monaco, monospace"),
-                            VerticalAlignment = VerticalAlignment.Center,
-                            TextAlignment = TextAlignment.Center,
-                            BaselineOffset = 1,
-                            FontSize = _baseFontSize * 0.9
-                        };
-                        var codeBorder = new Border
-                        {
-                            Child = codeText,
-                            Padding = new Thickness(6, 2, 6, 2),
-                            Background = GetCodeBackground(),
-                            BorderBrush = GetCodeBorder(),
-                            BorderThickness = new Thickness(1),
-                            VerticalAlignment = VerticalAlignment.Center,
-                            CornerRadius = new CornerRadius(4),
-                            Margin = new Thickness(0, 0, 0, -1)
-                        };
-                        textBlock.Inlines?.Add(new InlineUIContainer { Child = codeBorder });
-                    }
-                    else if (inline is LinkElement link)
-                    {
-                        var run = new Run
-                        {
-                            Text = link.Text,
-                            TextDecorations = TextDecorations.Underline,
-                            Foreground = GetLinkForeground()
-                        };
-                        textBlock.Inlines?.Add(run);
-                    }
-                    else if (inline is ImageElement image)
-                    {
-                        var img = new Image
-                        {
-                            Stretch = Stretch.Uniform,
-                            StretchDirection = StretchDirection.DownOnly,
-                            MaxHeight = 400,
-                            Margin = new Thickness(0, 0, 0, 10)
-                        };
-                        LoadImageAsync(img, image.Source);
-                        textBlock.Inlines?.Add(new InlineUIContainer { Child = img });
-                    }
-                }
+                RenderInlineElements(textBlock, quote.Inlines);
             }
 
             return new Border
@@ -707,78 +608,7 @@ namespace MarkdownViewer.Core.Implementations
                 textBlock.Inlines?.Clear();
                 if (quote.Inlines != null)
                 {
-                    foreach (var inline in quote.Inlines)
-                    {
-                        if (inline is Elements.TextElement text)
-                        {
-                            textBlock.Inlines?.Add(new Run { Text = text.Text ?? string.Empty });
-                        }
-                        else if (inline is EmphasisElement emphasis)
-                        {
-                            if (emphasis.IsStrong)
-                            {
-                                var bold = new Bold
-                                {
-                                    Inlines = { new Run { Text = emphasis.Text ?? string.Empty } }
-                                };
-                                textBlock.Inlines?.Add(bold);
-                            }
-                            else
-                            {
-                                var italic = new Italic
-                                {
-                                    Inlines = { new Run { Text = emphasis.Text ?? string.Empty } }
-                                };
-                                textBlock.Inlines?.Add(italic);
-                            }
-                        }
-                        else if (inline is CodeInlineElement code)
-                        {
-                            var codeText = new TextBlock
-                            {
-                                Text = code.Code ?? string.Empty,
-                                FontFamily = new FontFamily("Consolas, Menlo, Monaco, monospace"),
-                                VerticalAlignment = VerticalAlignment.Center,
-                                TextAlignment = TextAlignment.Center,
-                                BaselineOffset = 1,
-                                FontSize = _baseFontSize * 0.9
-                            };
-                            var codeBorder = new Border
-                            {
-                                Child = codeText,
-                                Padding = new Thickness(6, 2, 6, 2),
-                                Background = GetCodeBackground(),
-                                BorderBrush = GetCodeBorder(),
-                                BorderThickness = new Thickness(1),
-                                VerticalAlignment = VerticalAlignment.Center,
-                                CornerRadius = new CornerRadius(4),
-                                Margin = new Thickness(0, 0, 0, -1)
-                            };
-                            textBlock.Inlines?.Add(new InlineUIContainer { Child = codeBorder });
-                        }
-                        else if (inline is LinkElement link)
-                        {
-                            var run = new Run
-                            {
-                                Text = link.Text,
-                                TextDecorations = TextDecorations.Underline,
-                                Foreground = GetLinkForeground()
-                            };
-                            textBlock.Inlines?.Add(run);
-                        }
-                        else if (inline is ImageElement image)
-                        {
-                            var img = new Image
-                            {
-                                Stretch = Stretch.Uniform,
-                                StretchDirection = StretchDirection.DownOnly,
-                                MaxHeight = 400,
-                                Margin = new Thickness(0, 0, 0, 10)
-                            };
-                            LoadImageAsync(img, image.Source);
-                            textBlock.Inlines?.Add(new InlineUIContainer { Child = img });
-                        }
-                    }
+                    RenderInlineElements(textBlock, quote.Inlines);
                 }
             }
         }
@@ -845,11 +675,7 @@ namespace MarkdownViewer.Core.Implementations
                     Margin = new Thickness(0, 0, 5, 0)
                 };
 
-                var content = new TextBlock
-                {
-                    Text = item.Text ?? string.Empty,
-                    TextWrapping = TextWrapping.Wrap
-                };
+                var content = CreateListItemContent(item);
 
                 if (itemPanel.Children != null)
                 {
@@ -883,12 +709,7 @@ namespace MarkdownViewer.Core.Implementations
                     VerticalAlignment = VerticalAlignment.Top
                 };
 
-                var content = new TextBlock
-                {
-                    Text = item.Text ?? string.Empty,
-                    TextWrapping = TextWrapping.Wrap,
-                    VerticalAlignment = VerticalAlignment.Top
-                };
+                var content = CreateTaskListItemContent(item);
 
                 if (itemPanel.Children != null)
                 {
