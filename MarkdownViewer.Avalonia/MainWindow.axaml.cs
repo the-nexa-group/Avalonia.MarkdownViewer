@@ -205,6 +205,17 @@ Image: ![Avalonia Logo](https://avatars.githubusercontent.com/u/14075148?s=200&v
 |---------|---------|---------|
 | Normal text | **Bold text** | `Code text` |
 | [Link](http://example.com) | *Italic text* | Other content |
+
+### Formula
+
+$$
+\int_0^1 x^2 dx = \frac{1}{3}
+$$
+
+#### Inline Formula
+
+Let $x > 0$, then $f(x) = \frac{1}{x}$
+
 ";
 
         MarkdownViewer.MarkdownText = sampleMarkdown;

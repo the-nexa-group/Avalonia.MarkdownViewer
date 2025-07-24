@@ -13,6 +13,7 @@ using System.Linq;
 using Markdig.Extensions.Tables;
 using System;
 using Markdig.Parsers;
+using Markdig.Extensions.Mathematics;
 
 namespace MarkdownViewer.Core.Implementations
 {
@@ -27,6 +28,7 @@ namespace MarkdownViewer.Core.Implementations
             settings.EnableTrackTrivia();
             settings.UsePreciseSourceLocation();
             settings.UseTaskLists();
+            settings.UseMathematics(); // 启用数学扩展
             _pipeline = settings.Build();
         }
 
@@ -146,6 +148,17 @@ namespace MarkdownViewer.Core.Implementations
                 else if (block is ParagraphBlock paragraph)
                 {
                     yield return CreateParagraphElement(paragraph, blockText);
+                }
+                else if (block is MathBlock mathBlock)
+                {
+                    var mathContent = mathBlock.Lines.ToString();
+                    var element = new MathBlockElement
+                    {
+                        RawText = blockText,
+                        ElementType = Elements.MarkdownElementType.MathBlock,
+                        Content = mathContent
+                    };
+                    yield return element;
                 }
                 else if (block is CodeBlock codeBlock)
                 {
@@ -345,12 +358,16 @@ namespace MarkdownViewer.Core.Implementations
                         {
                             isChecked = text.StartsWith("[x] ") || text.StartsWith("[X] ");
                             text = text.Substring(4); // Skip "[ ] " or "[x] "
-                            
+
                             // Remove the task list marker from inlines if it's the first text element
                             if (inlines.Count > 0 && inlines[0] is TextElement textElement)
                             {
                                 var firstText = textElement.Text;
-                                if (firstText.StartsWith("[ ] ") || firstText.StartsWith("[x] ") || firstText.StartsWith("[X] "))
+                                if (
+                                    firstText.StartsWith("[ ] ")
+                                    || firstText.StartsWith("[x] ")
+                                    || firstText.StartsWith("[X] ")
+                                )
                                 {
                                     textElement.Text = firstText.Substring(4);
                                 }
@@ -417,6 +434,13 @@ namespace MarkdownViewer.Core.Implementations
                         RawText = code.ToString() ?? string.Empty,
                         ElementType = Elements.MarkdownElementType.Text,
                         Code = code.Content.ToString()
+                    },
+                MathInline mathInline
+                    => new MathInlineElement
+                    {
+                        RawText = mathInline.ToString() ?? string.Empty,
+                        ElementType = Elements.MarkdownElementType.MathInline,
+                        Content = mathInline.Content.ToString()
                     },
                 LiteralInline literal
                     => new TextElement

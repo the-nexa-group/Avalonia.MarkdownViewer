@@ -15,7 +15,9 @@ namespace MarkdownViewer.Core.Elements
         Emphasis,
         Text,
         TaskList,
-        TaskListItem
+        TaskListItem,
+        MathBlock,
+        MathInline
     }
 
     public abstract class MarkdownElement
@@ -112,5 +114,15 @@ namespace MarkdownViewer.Core.Elements
         public int Level { get; set; }
         public List<TaskListItemElement> Children { get; set; } = new();
         public List<MarkdownElement> Inlines { get; set; } = new();
+    }
+
+    public class MathBlockElement : MarkdownElement
+    {
+        public required string Content { get; set; }
+    }
+
+    public class MathInlineElement : MarkdownElement
+    {
+        public required string Content { get; set; }
     }
 }

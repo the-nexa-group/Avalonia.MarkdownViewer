@@ -17,6 +17,7 @@ using MarkdownViewer.Core.Elements;
 using MarkdownViewer.Core.Services;
 using System.IO;
 using Avalonia.Styling;
+using AvaloniaMath.Controls;
 
 namespace MarkdownViewer.Core.Implementations
 {
@@ -104,7 +105,7 @@ namespace MarkdownViewer.Core.Implementations
                 switch (inline)
                 {
                     case Elements.TextElement text:
-                        textBlock.Inlines?.Add(new Run { Text = text.Text ?? string.Empty });
+                        textBlock.Inlines?.Add(new Run { Text = text.Text ?? string.Empty, BaselineAlignment = BaselineAlignment.Center });
                         break;
                     case EmphasisElement emphasis:
                         RenderEmphasisInline(textBlock, emphasis);
@@ -125,6 +126,9 @@ namespace MarkdownViewer.Core.Implementations
                         };
                         LoadImageAsync(img, image.Source);
                         textBlock.Inlines?.Add(new InlineUIContainer { Child = img });
+                        break;
+                    case MathInlineElement mathInline:
+                        textBlock.Inlines?.Add(new InlineUIContainer { Child = RenderMathInline(mathInline) });
                         break;
                 }
             }
@@ -229,6 +233,8 @@ namespace MarkdownViewer.Core.Implementations
                 TableElement table => RenderTable(table),
                 EmphasisElement emphasis => RenderEmphasis(emphasis),
                 HorizontalRuleElement => RenderHorizontalRule(),
+                MathBlockElement mathBlock => RenderMathBlock(mathBlock),
+                MathInlineElement mathInline => RenderMathInline(mathInline),
                 _ => new TextBlock { Text = "Unsupported element" }
             };
         }
@@ -1107,6 +1113,30 @@ namespace MarkdownViewer.Core.Implementations
                 VerticalAlignment = VerticalAlignment.Center,
                 CornerRadius = new CornerRadius(4),
                 Margin = new Thickness(0, 0, 0, -1)
+            };
+        }
+
+        private Control RenderMathBlock(MathBlockElement mathBlock)
+        {
+            return new FormulaBlock
+            {
+                Formula = mathBlock.Content,
+                FontSize = _baseFontSize * 1.2,
+                Margin = new Thickness(0, 10, 0, 10),
+                HorizontalAlignment = HorizontalAlignment.Left
+            };
+        }
+
+        private Control RenderMathInline(MathInlineElement mathInline)
+        {
+            // AvaloniaMath 只提供 FormulaBlock，没有 FormulaInline，行内公式用 FormulaBlock 并缩小字号和去除上下边距
+            return new FormulaBlock
+            {
+                Formula = mathInline.Content,
+                FontSize = _baseFontSize,
+                Margin = new Thickness(0),
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Left
             };
         }
     }
