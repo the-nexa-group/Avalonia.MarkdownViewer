@@ -1,28 +1,25 @@
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
-using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Styling;
-using MarkdownViewer.Core.Implementations;
 using MarkdownViewer.Core.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.Net.Http;
 
-namespace MarkdownViewer.Avalonia;
-
-public partial class MainWindow : Window
+namespace MarkdownViewer.Avalonia.Views;
+public partial class MainView : UserControl
 {
     private readonly HttpClient httpClient;
     private readonly MemoryImageCache imageCache;
-    private readonly ILogger<MainWindow> logger;
+    private readonly ILogger<MainView> logger;
 
-    public MainWindow()
+    public MainView()
     {
         InitializeComponent();
 
-        logger = NullLogger<MainWindow>.Instance;
+        logger = NullLogger<MainView>.Instance;
         //httpClient = new HttpClient();
         //var imageCacheLogger = NullLogger<MemoryImageCache>.Instance;
         //imageCache = new MemoryImageCache(httpClient, imageCacheLogger);

@@ -1,0 +1,116 @@
+<UserControl
+    x:Class="MarkdownViewer.Avalonia.Views.MainView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:md="using:MarkdownViewer.Core.Controls"
+    xmlns:vm="clr-namespace:MarkdownViewer.Avalonia.ViewModels"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    x:DataType="vm:MainViewModel"
+    mc:Ignorable="d">
+    <Design.DataContext>
+        <!--
+            This only sets the DataContext for the previewer in an IDE,
+            to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs)
+        -->
+        <vm:MainViewModel />
+    </Design.DataContext>
+
+    <UserControl.Styles>
+        <Style Selector="GridSplitter">
+            <Setter Property="Background" Value="#44808080" />
+            <Setter Property="MinWidth" Value="4" />
+            <Setter Property="MinHeight" Value="4" />
+        </Style>
+
+        <Style Selector="TextBox#MarkdownEditor">
+            <Setter Property="Text" Value="{Binding #MarkdownViewer.MarkdownText, Mode=TwoWay}" />
+        </Style>
+
+        <Style Selector="ToggleButton.ThemeToggle">
+            <Setter Property="Width" Value="40" />
+            <Setter Property="Height" Value="40" />
+            <Setter Property="Margin" Value="8" />
+            <Setter Property="CornerRadius" Value="20" />
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltHighBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+
+        <Style Selector="ToggleButton.ThemeToggle:checked">
+            <Setter Property="Background" Value="{DynamicResource SystemAccentColor}" />
+        </Style>
+
+        <Style Selector="ToggleButton.ThemeToggle > TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="FontSize" Value="16" />
+        </Style>
+    </UserControl.Styles>
+
+    <DockPanel>
+        <!--  Top toolbar  -->
+        <Border
+            Background="{DynamicResource SystemControlBackgroundChromeMediumBrush}"
+            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+            BorderThickness="0,0,0,1"
+            DockPanel.Dock="Top">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <!--  Title area  -->
+                <TextBlock
+                    Grid.Column="0"
+                    Margin="16,8"
+                    VerticalAlignment="Center"
+                    FontSize="16"
+                    FontWeight="SemiBold"
+                    Text="Markdown Viewer" />
+
+                <!--  Theme toggle button  -->
+                <ToggleButton
+                    Name="ThemeToggleButton"
+                    Grid.Column="1"
+                    Classes="ThemeToggle"
+                    Click="OnThemeToggleClick"
+                    ToolTip.Tip="Switch Dark/Light Theme">
+                    <TextBlock Name="ThemeIcon" Text="🌙" />
+                </ToggleButton>
+            </Grid>
+        </Border>
+
+        <!--  Main content area  -->
+        <Grid Name="MainGrid">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" MinWidth="200" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" MinWidth="200" />
+            </Grid.ColumnDefinitions>
+
+            <!--  Editor area  -->
+            <TextBox
+                Name="MarkdownEditor"
+                Grid.Column="0"
+                Margin="4"
+                AcceptsReturn="True"
+                FontFamily="Consolas"
+                TextWrapping="Wrap" />
+
+            <!--  Splitter  -->
+            <GridSplitter
+                Grid.Column="1"
+                ResizeBehavior="PreviousAndNext"
+                ResizeDirection="Columns" />
+
+            <!--  Preview area  -->
+            <ScrollViewer Grid.Column="2" Margin="4">
+                <md:MarkdownViewer Name="MarkdownViewer" />
+            </ScrollViewer>
+        </Grid>
+    </DockPanel>
+</UserControl>
