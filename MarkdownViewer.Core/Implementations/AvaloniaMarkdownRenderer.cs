@@ -98,27 +98,27 @@ namespace MarkdownViewer.Core.Implementations
 
         private double GetH1FontSize()
         {
-            return MarkdownTheme.GetResource("MarkdownH1FontSize", () => 28);
+            return MarkdownTheme.GetResource("MarkdownH1FontSize", () => GetBaseFontSize() * 2);
         }
 
         private double GetH2FontSize()
         {
-            return MarkdownTheme.GetResource("MarkdownH2FontSize", () => 24);
+            return MarkdownTheme.GetResource("MarkdownH2FontSize", () => GetBaseFontSize() * 1.7);
         }
 
         private double GetH3FontSize()
         {
-            return MarkdownTheme.GetResource("MarkdownH3FontSize", () => 20);
+            return MarkdownTheme.GetResource("MarkdownH3FontSize", () => GetBaseFontSize() * 1.4);
         }
 
         private double GetH4FontSize()
         {
-            return MarkdownTheme.GetResource("MarkdownH4FontSize", () => 17);
+            return MarkdownTheme.GetResource("MarkdownH4FontSize", () => GetBaseFontSize() * 1.2);
         }
 
         private double GetH5FontSize()
         {
-            return MarkdownTheme.GetResource("MarkdownH5FontSize", () => 15);
+            return MarkdownTheme.GetResource("MarkdownH5FontSize", () => GetBaseFontSize() * 1.1);
         }
 
         private double GetCodeFontSize()
@@ -128,12 +128,12 @@ namespace MarkdownViewer.Core.Implementations
 
         private double GetInlineCodeFontSize()
         {
-            return MarkdownTheme.GetResource("MarkdownCodeFontSize", () => 13);
+            return MarkdownTheme.GetResource("MarkdownInlineCodeFontSize", () => GetBaseFontSize() * 0.9);
         }
 
         private double GetFormulaFontSize()
         {
-            return MarkdownTheme.GetResource("MarkdownFormulaFontSize", () => 17);
+            return MarkdownTheme.GetResource("MarkdownFormulaFontSize", () => GetBaseFontSize() * 1.2);
         }
 
         private Thickness GetDocumentMargin()
