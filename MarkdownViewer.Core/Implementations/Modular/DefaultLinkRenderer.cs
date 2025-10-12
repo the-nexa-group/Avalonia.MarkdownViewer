@@ -10,8 +10,10 @@ public class DefaultLinkRenderer : ILinkRenderer
     {
         var button = new Button
         {
+            Classes = { DefaultClasses.Markdown, DefaultClasses.Link },
             Content = new TextBlock
             {
+                Classes = { DefaultClasses.Markdown, DefaultClasses.Link },
                 Text = element.Text,
             }
         };

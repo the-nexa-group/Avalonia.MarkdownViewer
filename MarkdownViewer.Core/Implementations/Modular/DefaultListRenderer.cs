@@ -77,7 +77,6 @@ public class DefaultListRenderer : IListRenderer, ITaskListRenderer
 
     public Control? RenderTaskList(IModularMarkdownRenderer markdownRenderer, Control markdownControl, TaskListElement element)
     {
-        return null;
         throw new NotImplementedException();
     }
 }

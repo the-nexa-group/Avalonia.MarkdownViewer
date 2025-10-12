@@ -8,7 +8,6 @@ public class DefaultTableRenderer : ITableRenderer
 {
     public Control? RenderTable(IModularMarkdownRenderer markdownRenderer, Control markdownControl, TableElement element)
     {
-        return null;
         throw new NotImplementedException();
     }
 }

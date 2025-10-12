@@ -16,4 +16,6 @@ public static class DefaultClasses
     public const string Math = "Math";
     public const string HorizontalRule = "HorizontalRule";
     public const string List = "List";
+    public const string Image = "Image";
+    public const string Link = "Link";
 }

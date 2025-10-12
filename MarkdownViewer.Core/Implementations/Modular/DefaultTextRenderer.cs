@@ -30,7 +30,6 @@ public class DefaultTextRenderer :
     
     public Control? RenderEmphasis(IModularMarkdownRenderer markdownRenderer, Control markdownControl, EmphasisElement element)
     {
-        return null;
         throw new NotImplementedException();
     }
     
