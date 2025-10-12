@@ -27,8 +27,8 @@ public class ModularMarkdownViewer : ContentControl
     /// <summary>
     /// Gets or sets the Markdown text to be displayed.
     /// </summary>
-    public static readonly DirectProperty<MarkdownViewer, string> MarkdownTextProperty =
-        AvaloniaProperty.RegisterDirect<MarkdownViewer, string>(
+    public static readonly DirectProperty<ModularMarkdownViewer, string> MarkdownTextProperty =
+        AvaloniaProperty.RegisterDirect<ModularMarkdownViewer, string>(
             nameof(MarkdownText),
             getter: obj => obj.MarkdownText,
             setter: (obj, value) => obj.MarkdownText = value,
