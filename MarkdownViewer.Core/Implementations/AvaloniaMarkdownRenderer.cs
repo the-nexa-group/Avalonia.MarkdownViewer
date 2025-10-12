@@ -27,7 +27,6 @@ namespace MarkdownViewer.Core.Implementations
             new("Consolas, Menlo, Monaco, monospace");
 
         private readonly FontFamily _defaultFontFamily = FontFamily.Default;
-        private readonly double _baseFontSize = 14;
         private readonly IImageCache _imageCache;
         private readonly ILogger _logger;
 
@@ -90,6 +89,56 @@ namespace MarkdownViewer.Core.Implementations
         private IBrush GetHorizontalRuleBackground()
         {
             return GetThemeBrush("MarkdownBorderColor", Color.FromRgb(229, 229, 229));
+        }
+
+        private double GetBaseFontSize()
+        {
+            return MarkdownTheme.GetResource("MarkdownBaseFontSize", () => 14);
+        }
+
+        private double GetH1FontSize()
+        {
+            return MarkdownTheme.GetResource("MarkdownH1FontSize", () => 28);
+        }
+
+        private double GetH2FontSize()
+        {
+            return MarkdownTheme.GetResource("MarkdownH2FontSize", () => 24);
+        }
+
+        private double GetH3FontSize()
+        {
+            return MarkdownTheme.GetResource("MarkdownH3FontSize", () => 20);
+        }
+
+        private double GetH4FontSize()
+        {
+            return MarkdownTheme.GetResource("MarkdownH4FontSize", () => 17);
+        }
+
+        private double GetH5FontSize()
+        {
+            return MarkdownTheme.GetResource("MarkdownH5FontSize", () => 15);
+        }
+
+        private double GetCodeFontSize()
+        {
+            return MarkdownTheme.GetResource("MarkdownCodeFontSize", GetBaseFontSize);
+        }
+
+        private double GetInlineCodeFontSize()
+        {
+            return MarkdownTheme.GetResource("MarkdownCodeFontSize", () => 13);
+        }
+
+        private double GetFormulaFontSize()
+        {
+            return MarkdownTheme.GetResource("MarkdownFormulaFontSize", () => 17);
+        }
+
+        private Thickness GetDocumentMargin()
+        {
+            return MarkdownTheme.GetResource("MarkdownDocumentMargin", () => new Thickness(10));
         }
 
         private void RenderInlineElements(TextBlock textBlock, List<MarkdownElement> inlines)
@@ -206,7 +255,7 @@ namespace MarkdownViewer.Core.Implementations
             var panel = new StackPanel
             {
                 Orientation = Orientation.Vertical,
-                Margin = new Thickness(10)
+                Margin = GetDocumentMargin()
             };
 
             foreach (var element in elements)
@@ -284,7 +333,7 @@ namespace MarkdownViewer.Core.Implementations
                 FontFamily = _defaultFontFamily,
                 FontWeight = FontWeight.Bold,
                 FontSize = GetHeadingFontSize(heading.Level),
-                Margin = new Thickness(0, heading.Level == 1 ? 20 : 15, 0, 10)
+                Margin = new Thickness(0, heading.Level == 1 ? 20 : 15, 0, 10),
             };
             return textBlock;
         }
@@ -300,7 +349,7 @@ namespace MarkdownViewer.Core.Implementations
             var textBlock = new TextBlock
             {
                 FontFamily = _defaultFontFamily,
-                FontSize = _baseFontSize,
+                FontSize = GetBaseFontSize(),
                 TextWrapping = TextWrapping.Wrap,
                 Margin = new Thickness(0, 0, 0, 10)
             };
@@ -379,7 +428,7 @@ namespace MarkdownViewer.Core.Implementations
             {
                 Text = codeBlock.Code,
                 FontFamily = new FontFamily("Consolas, Menlo, Monaco, monospace"),
-                FontSize = _baseFontSize,
+                FontSize = GetCodeFontSize(),
                 Padding = new Thickness(16, 12, 16, 12),
                 TextWrapping = TextWrapping.Wrap
             };
@@ -457,12 +506,12 @@ namespace MarkdownViewer.Core.Implementations
         {
             return level switch
             {
-                1 => _baseFontSize * 2.0,
-                2 => _baseFontSize * 1.7,
-                3 => _baseFontSize * 1.4,
-                4 => _baseFontSize * 1.2,
-                5 => _baseFontSize * 1.1,
-                _ => _baseFontSize
+                1 => GetH1FontSize(),
+                2 => GetH2FontSize(),
+                3 => GetH3FontSize(),
+                4 => GetH4FontSize(),
+                5 => GetH5FontSize(),
+                _ => GetBaseFontSize()
             };
         }
 
@@ -588,7 +637,8 @@ namespace MarkdownViewer.Core.Implementations
             {
                 TextWrapping = TextWrapping.Wrap,
                 Margin = new Thickness(10),
-                Foreground = GetQuoteForeground()
+                Foreground = GetQuoteForeground(),
+                FontSize = GetBaseFontSize()
             };
 
             if (quote.Inlines != null)
@@ -640,6 +690,7 @@ namespace MarkdownViewer.Core.Implementations
                 TextWrapping = TextWrapping.Wrap,
                 Foreground = GetLinkForeground(),
                 TextDecorations = TextDecorations.Underline,
+                FontSize = GetBaseFontSize(),
                 Cursor = new Cursor(StandardCursorType.Hand)
             };
 
@@ -1100,7 +1151,7 @@ namespace MarkdownViewer.Core.Implementations
                 VerticalAlignment = VerticalAlignment.Center,
                 TextAlignment = TextAlignment.Center,
                 BaselineOffset = 1,
-                FontSize = _baseFontSize * 0.9
+                FontSize = GetInlineCodeFontSize()
             };
 
             return new Border
@@ -1121,7 +1172,7 @@ namespace MarkdownViewer.Core.Implementations
             return new FormulaBlock
             {
                 Formula = mathBlock.Content,
-                FontSize = _baseFontSize * 1.2,
+                FontSize = GetFormulaFontSize(),
                 Margin = new Thickness(0, 10, 0, 10),
                 HorizontalAlignment = HorizontalAlignment.Left
             };
@@ -1133,7 +1184,7 @@ namespace MarkdownViewer.Core.Implementations
             return new FormulaBlock
             {
                 Formula = mathInline.Content,
-                FontSize = _baseFontSize,
+                FontSize = GetBaseFontSize(),
                 Margin = new Thickness(0),
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Left

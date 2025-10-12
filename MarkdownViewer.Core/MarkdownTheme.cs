@@ -3,6 +3,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
 using Avalonia.Media;
 using System;
+using Avalonia.Data;
 
 namespace MarkdownViewer.Core
 {
@@ -100,24 +101,28 @@ namespace MarkdownViewer.Core
         /// <returns>Brush resource</returns>
         public static IBrush GetThemeBrush(string resourceKey, Color fallbackColor)
         {
+            return GetResource(resourceKey, () => new SolidColorBrush(fallbackColor));
+        }
+
+        public static T GetResource<T>(string resourceKey, Func<T> defaultValue)
+        {
             // Ensure theme is initialized
             Initialize();
 
             // Try to get from application resources
-            if (
-                Application.Current?.TryGetResource(
+            if (Application.Current?.TryGetResource(
                     resourceKey,
                     Application.Current.ActualThemeVariant,
-                    out var resource
+                    out object? resource
                 ) == true
-                && resource is IBrush brush
             )
             {
-                return brush;
+                if (resource is T value)
+                    return value;
+                
             }
 
-            // Fallback to default color
-            return new SolidColorBrush(fallbackColor);
+            return defaultValue();
         }
 
         /// <summary>
