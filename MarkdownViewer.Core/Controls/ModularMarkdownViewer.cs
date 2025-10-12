@@ -4,6 +4,7 @@ using Avalonia.Data;
 using Avalonia.Layout;
 using Avalonia.Media;
 using MarkdownViewer.Core.Implementations;
+using MarkdownViewer.Core.Implementations.Modular;
 using MarkdownViewer.Core.Renderers;
 
 namespace MarkdownViewer.Core.Controls;
@@ -42,6 +43,11 @@ public class ModularMarkdownViewer : ContentControl
     {
         get => _markdownText;
         set => SetAndRaise(MarkdownTextProperty, ref _markdownText, value);
+    }
+
+    public ModularMarkdownViewer()
+    {
+        Classes.Add(DefaultClasses.Markdown);
     }
     
     /// <summary>
