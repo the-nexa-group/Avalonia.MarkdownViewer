@@ -8,16 +8,7 @@ public class DefaultLinkRenderer : ILinkRenderer
 {
     public Control? RenderLink(IModularMarkdownRenderer markdownRenderer, Control markdownControl, LinkElement element)
     {
-        var button = new Button
-        {
-            Classes = { DefaultClasses.Markdown, DefaultClasses.Link },
-            Content = new TextBlock
-            {
-                Classes = { DefaultClasses.Markdown, DefaultClasses.Link },
-                Text = element.Text,
-            }
-        };
-        
-        return button;
+        var textBlock = DefaultUtils.CreateTextBlock(element.Text, [DefaultClasses.Markdown, DefaultClasses.Link]);
+        return textBlock;
     }
 }

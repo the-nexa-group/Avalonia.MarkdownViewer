@@ -35,21 +35,15 @@ public class DefaultTextRenderer :
     
     public Control? RenderQuote(IModularMarkdownRenderer markdownRenderer, Control markdownControl, QuoteElement element)
     {
-        var panel = new StackPanel();
-
+        var textBlock = DefaultUtils.CreateTextBlock(element.Text, [DefaultClasses.Markdown, DefaultClasses.Quote]);
+        
         foreach (var childElement in element.Inlines) 
-        {
-            var childControl = markdownRenderer.RenderElement(markdownControl, childElement);
-            if (childControl != null)
-            {
-                panel.Children.Add(childControl);
-            }
-        }
+            markdownRenderer.RenderInlineElement(markdownControl, textBlock, childElement);
     
         return new Border
         {
             Classes = { DefaultClasses.Markdown, DefaultClasses.Quote },
-            Child = panel
+            Child = textBlock
         };
     }
 }
