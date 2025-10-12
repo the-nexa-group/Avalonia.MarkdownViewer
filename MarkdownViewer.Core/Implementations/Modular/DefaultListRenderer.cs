@@ -33,6 +33,7 @@ public class DefaultListRenderer : IListRenderer, ITaskListRenderer
             
             var bullet = new TextBlock
             {
+                Classes = { DefaultClasses.Markdown, DefaultClasses.List, DefaultClasses.ListBullet },
                 Text = bulletText,
                 Width = 20,
                 TextAlignment = TextAlignment.Right,

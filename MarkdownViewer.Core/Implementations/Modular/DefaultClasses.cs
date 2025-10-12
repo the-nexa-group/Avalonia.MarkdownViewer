@@ -18,4 +18,5 @@ public static class DefaultClasses
     public const string List = "List";
     public const string Image = "Image";
     public const string Link = "Link";
+    public const string ListBullet = "ListBullet";
 }
