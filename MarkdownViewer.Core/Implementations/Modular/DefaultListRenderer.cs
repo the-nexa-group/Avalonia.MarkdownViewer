@@ -45,7 +45,7 @@ public class DefaultListRenderer : IListRenderer, ITaskListRenderer
                 Spacing = 5
             };
             
-            var textBlock = DefaultUtils.CreateTextBlock(item.Text, [DefaultClasses.Markdown, DefaultClasses.List, DefaultClasses.Text]);
+            var textBlock = DefaultUtils.CreateTextBlock(null, [DefaultClasses.Markdown, DefaultClasses.List, DefaultClasses.Text]);
             textBlock.VerticalAlignment = VerticalAlignment.Top;
             
             foreach (MarkdownElement inline in item.Inlines)

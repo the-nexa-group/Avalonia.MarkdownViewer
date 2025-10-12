@@ -7,7 +7,7 @@ public class DefaultUtils
 {
     public static bool UseSelectableText { get; set; } = true;
     
-    public static TextBlock CreateTextBlock(string text, string[] classes)
+    public static TextBlock CreateTextBlock(string? text, string[] classes)
     {
         TextBlock textBlock = UseSelectableText
             ? new SelectableTextBlock
