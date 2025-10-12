@@ -26,7 +26,6 @@ namespace MarkdownViewer.Core.Implementations
         private static readonly FontFamily CodeFontFamily =
             new("Consolas, Menlo, Monaco, monospace");
 
-        private readonly FontFamily _defaultFontFamily = FontFamily.Default;
         private readonly IImageCache _imageCache;
         private readonly ILogger _logger;
 
@@ -89,6 +88,11 @@ namespace MarkdownViewer.Core.Implementations
         private IBrush GetHorizontalRuleBackground()
         {
             return GetThemeBrush("MarkdownBorderColor", Color.FromRgb(229, 229, 229));
+        }
+
+        private FontFamily GetCodeFontFamily()
+        {
+            return MarkdownTheme.GetResource("MarkdownCodeFontFamily", () => CodeFontFamily);
         }
 
         private double GetBaseFontSize()
@@ -208,7 +212,8 @@ namespace MarkdownViewer.Core.Implementations
             var content = new TextBlock
             {
                 TextWrapping = TextWrapping.Wrap,
-                VerticalAlignment = VerticalAlignment.Top
+                VerticalAlignment = VerticalAlignment.Top,
+                FontSize = GetBaseFontSize()
             };
 
             // Process inline elements if available
@@ -230,7 +235,8 @@ namespace MarkdownViewer.Core.Implementations
             var content = new TextBlock
             {
                 TextWrapping = TextWrapping.Wrap,
-                VerticalAlignment = VerticalAlignment.Top
+                VerticalAlignment = VerticalAlignment.Top,
+                FontSize = GetBaseFontSize()
             };
 
             // Process inline elements if available
@@ -330,7 +336,6 @@ namespace MarkdownViewer.Core.Implementations
             var textBlock = new TextBlock
             {
                 Text = heading.Text,
-                FontFamily = _defaultFontFamily,
                 FontWeight = FontWeight.Bold,
                 FontSize = GetHeadingFontSize(heading.Level),
                 Margin = new Thickness(0, heading.Level == 1 ? 20 : 15, 0, 10),
@@ -348,7 +353,6 @@ namespace MarkdownViewer.Core.Implementations
 
             var textBlock = new TextBlock
             {
-                FontFamily = _defaultFontFamily,
                 FontSize = GetBaseFontSize(),
                 TextWrapping = TextWrapping.Wrap,
                 Margin = new Thickness(0, 0, 0, 10)
@@ -427,7 +431,7 @@ namespace MarkdownViewer.Core.Implementations
             var textBox = new TextBlock
             {
                 Text = codeBlock.Code,
-                FontFamily = new FontFamily("Consolas, Menlo, Monaco, monospace"),
+                FontFamily = GetCodeFontFamily(),
                 FontSize = GetCodeFontSize(),
                 Padding = new Thickness(16, 12, 16, 12),
                 TextWrapping = TextWrapping.Wrap
@@ -543,7 +547,8 @@ namespace MarkdownViewer.Core.Implementations
                         Text = bulletText,
                         Width = 20,
                         TextAlignment = TextAlignment.Right,
-                        VerticalAlignment = VerticalAlignment.Top
+                        VerticalAlignment = VerticalAlignment.Top,
+                        FontSize = GetBaseFontSize()
                     };
 
                     var contentPanel = new StackPanel
@@ -729,7 +734,8 @@ namespace MarkdownViewer.Core.Implementations
                     Text = list.IsOrdered ? $"{list.Items.IndexOf(item) + 1}." : "•",
                     Width = 20,
                     TextAlignment = TextAlignment.Right,
-                    Margin = new Thickness(0, 0, 5, 0)
+                    Margin = new Thickness(0, 0, 5, 0),
+                    FontSize = GetBaseFontSize()
                 };
 
                 var content = CreateListItemContent(item);
@@ -920,7 +926,8 @@ namespace MarkdownViewer.Core.Implementations
             var textBlock = new TextBlock
             {
                 TextWrapping = TextWrapping.Wrap,
-                Padding = new Thickness(5)
+                Padding = new Thickness(5),
+                FontSize = GetBaseFontSize()
             };
 
             // Handle image markup
@@ -1036,7 +1043,8 @@ namespace MarkdownViewer.Core.Implementations
                     Text = header ?? string.Empty,
                     FontWeight = FontWeight.Bold,
                     Padding = new Thickness(5),
-                    Background = GetTableHeaderBackground()
+                    Background = GetTableHeaderBackground(),
+                    FontSize = GetBaseFontSize()
                 };
                 Grid.SetRow(headerCell, 0);
                 Grid.SetColumn(headerCell, i);
@@ -1068,7 +1076,11 @@ namespace MarkdownViewer.Core.Implementations
 
         private Control RenderEmphasis(EmphasisElement emphasis)
         {
-            var textBlock = new TextBlock();
+            var textBlock = new TextBlock
+            {
+                FontSize = GetBaseFontSize()
+            };
+            
             if (textBlock.Inlines != null)
             {
                 if (emphasis.IsStrong)
@@ -1125,7 +1137,8 @@ namespace MarkdownViewer.Core.Implementations
                 {
                     Text = text,
                     TextDecorations = TextDecorations.Underline,
-                    Foreground = GetLinkForeground()
+                    Foreground = GetLinkForeground(),
+                    FontSize = GetBaseFontSize()
                 },
                 Background = Brushes.Transparent,
                 BorderThickness = new Thickness(0),
@@ -1147,7 +1160,7 @@ namespace MarkdownViewer.Core.Implementations
             var codeText = new TextBlock
             {
                 Text = code,
-                FontFamily = CodeFontFamily,
+                FontFamily = GetCodeFontFamily(),
                 VerticalAlignment = VerticalAlignment.Center,
                 TextAlignment = TextAlignment.Center,
                 BaselineOffset = 1,
