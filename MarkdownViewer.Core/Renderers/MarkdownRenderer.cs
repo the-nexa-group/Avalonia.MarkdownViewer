@@ -116,11 +116,12 @@ public static class ModularMarkdownRendererExtensions
         }
         catch (Exception e)
         {
-            return new TextBlock
+            inlineControl = new TextBlock
             {
                 Text = e.Message,
                 Foreground = Brushes.Red
             };
+            TryAddInline(textBlock, inlineControl);
         }
         
         return inlineControl;
