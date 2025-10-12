@@ -97,7 +97,7 @@ namespace MarkdownViewer.Core.Implementations
 
         private double GetBaseFontSize()
         {
-            return MarkdownTheme.GetResource("MarkdownBaseFontSize", () => 14);
+            return MarkdownTheme.GetResource("MarkdownBaseFontSize", () => 14d);
         }
 
         private double GetH1FontSize()
