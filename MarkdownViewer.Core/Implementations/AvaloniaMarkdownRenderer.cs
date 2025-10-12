@@ -147,14 +147,11 @@ namespace MarkdownViewer.Core.Implementations
 
         private void RenderInlineElements(TextBlock textBlock, List<MarkdownElement> inlines)
         {
-            if (inlines == null || inlines.Count == 0)
+            if (inlines.Count == 0)
                 return;
 
             foreach (var inline in inlines)
             {
-                if (inline == null)
-                    continue;
-
                 switch (inline)
                 {
                     case Elements.TextElement text:
@@ -338,7 +335,7 @@ namespace MarkdownViewer.Core.Implementations
                 Text = heading.Text,
                 FontWeight = FontWeight.Bold,
                 FontSize = GetHeadingFontSize(heading.Level),
-                Margin = new Thickness(0, heading.Level == 1 ? 20 : 15, 0, 10),
+                Margin = new Thickness(0, heading.Level == MarkdownHeadingLevel.H1 ? 20 : 15, 0, 10),
             };
             return textBlock;
         }
@@ -357,11 +354,8 @@ namespace MarkdownViewer.Core.Implementations
                 TextWrapping = TextWrapping.Wrap,
                 Margin = new Thickness(0, 0, 0, 10)
             };
-
-            if (paragraph.Inlines != null)
-            {
-                RenderInlineElements(textBlock, paragraph.Inlines);
-            }
+            
+            RenderInlineElements(textBlock, paragraph.Inlines);
 
             return textBlock;
         }
@@ -506,15 +500,15 @@ namespace MarkdownViewer.Core.Implementations
             textBox.Text = codeBlock.Code;
         }
 
-        private double GetHeadingFontSize(int level)
+        private double GetHeadingFontSize(MarkdownHeadingLevel headingLevel)
         {
-            return level switch
+            return headingLevel switch
             {
-                1 => GetH1FontSize(),
-                2 => GetH2FontSize(),
-                3 => GetH3FontSize(),
-                4 => GetH4FontSize(),
-                5 => GetH5FontSize(),
+                MarkdownHeadingLevel.H1 => GetH1FontSize(),
+                MarkdownHeadingLevel.H2 => GetH2FontSize(),
+                MarkdownHeadingLevel.H3 => GetH3FontSize(),
+                MarkdownHeadingLevel.H4 => GetH4FontSize(),
+                MarkdownHeadingLevel.H5 => GetH5FontSize(),
                 _ => GetBaseFontSize()
             };
         }
@@ -533,14 +527,14 @@ namespace MarkdownViewer.Core.Implementations
                     var itemPanel = new StackPanel
                     {
                         Orientation = Orientation.Horizontal,
-                        Margin = new Thickness(item.Level * 20, 0, 0, 0),
+                        Margin = new Thickness(item.IndentationLevel * 20, 0, 0, 0),
                         Spacing = 5
                     };
 
                     // Select different symbols based on level and list type
                     string bulletText = list.IsOrdered
                         ? $"{list.Items.IndexOf(item) + 1}."
-                        : (item.Level == 0 ? "•" : "◦");
+                        : (item.IndentationLevel == 0 ? "•" : "◦");
 
                     var bullet = new TextBlock
                     {
@@ -726,7 +720,7 @@ namespace MarkdownViewer.Core.Implementations
                 var itemPanel = new StackPanel
                 {
                     Orientation = Orientation.Horizontal,
-                    Margin = new Thickness(item.Level * 20, 0, 0, 0)
+                    Margin = new Thickness(item.IndentationLevel * 20, 0, 0, 0)
                 };
 
                 var bullet = new TextBlock
