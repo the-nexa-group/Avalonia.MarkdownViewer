@@ -25,22 +25,9 @@ namespace MarkdownViewer.Core.Implementations
         {
             _pipeline = new MarkdownPipelineBuilder()
                 .DisableHtml()
-                .UseAutoIdentifiers()
-                .UseCitations()
-                .UseEmphasisExtras()
-                .UseFigures()
-                .UseGridTables()
-                .UsePipeTables()
-                .UseMathematics()
-                .UseMediaLinks()
-                .UseListExtras()
-                .UseTaskLists()
-                .UseDiagrams()
-                .UseAutoLinks()
-                .UseGenericAttributes()
-                //TODO
-                //.UseFooters()
-                //.UseFootnotes()
+                .UseAdvancedExtensions()
+                .EnableTrackTrivia()
+                .UsePreciseSourceLocation()
                 .Build();
         }
 
@@ -438,13 +425,13 @@ namespace MarkdownViewer.Core.Implementations
                     => new MathInlineElement
                     {
                         RawText = mathInline.ToString() ?? string.Empty,
-                        Content = mathInline.Content.Text
+                        Content = mathInline.Content.ToString()
                     },
                 LiteralInline literal
                     => new TextElement
                     {
                         RawText = literal.ToString(),
-                        Text = literal.Content.Text
+                        Text = literal.Content.ToString()
                     },
                 _
                     => new TextElement
