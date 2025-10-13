@@ -28,6 +28,7 @@ namespace MarkdownViewer.Core.Implementations
                 .UseAdvancedExtensions()
                 .EnableTrackTrivia()
                 .UsePreciseSourceLocation()
+                .UseSoftlineBreakAsHardlineBreak()
                 .Build();
         }
 
