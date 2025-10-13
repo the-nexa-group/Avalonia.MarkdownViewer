@@ -28,14 +28,7 @@ public class DefaultImageRenderer : IImageRenderer
     
     public Control? RenderImage(IModularMarkdownRenderer markdownRenderer, Control markdownControl, ImageElement element)
     {
-        var img = new Image
-        {
-            Classes = { DefaultClasses.Markdown, DefaultClasses.Image },
-            Stretch = Stretch.Uniform,
-            StretchDirection = StretchDirection.DownOnly,
-            HorizontalAlignment = HorizontalAlignment.Left,
-            MaxHeight = 400
-        };
+        var img = new Image { Classes = { DefaultClasses.Markdown, DefaultClasses.Image } };
 
         LoadImageAsync(img, element.Source);
         
