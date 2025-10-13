@@ -102,10 +102,15 @@
     </Style>
 
     <Style Selector=".Markdown Image.Image">
-        <Setter Property="Margin" Value="0,0,0,10" />
-        <Setter Property="Stretch" Value="UniformToFill" />
+        <Setter Property="Stretch" Value="Uniform" />
         <Setter Property="StretchDirection" Value="DownOnly" />
         <Setter Property="MaxHeight" Value="400"/>
+    </Style>
+    
+    <Style Selector=".Markdown Border.Image">
+        <Setter Property="Margin" Value="0,0,0,10" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
     </Style>
     
     <Style Selector=".Markdown TextBlock.List.ListBullet">
