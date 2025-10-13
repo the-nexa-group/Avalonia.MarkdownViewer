@@ -7,7 +7,7 @@
     
     <!-- NuGet Package Info -->
     <PackageId>MarkdownViewer.Core</PackageId>
-    <Version>1.0.17</Version>
+    <Version>1.0.18</Version>
     <Authors>LITTOMA</Authors>
     <Company>LITTOMA</Company>
     <Description>A powerful Markdown viewer control for Avalonia applications with support for custom rendering and styling.

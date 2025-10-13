@@ -32,7 +32,7 @@ public static class ModularMarkdownRendererExtensions
             return element switch
             {
                 ParagraphElement paragraphElement =>
-                    RenderParagraph(markdownRenderer, markdownControl, paragraphElement),
+                    markdownRenderer.TextRenderer.RenderParagraph(markdownRenderer, markdownControl, paragraphElement),
                 TextElement textElement =>
                     markdownRenderer.TextRenderer.RenderText(markdownRenderer, markdownControl, textElement),
                 HeadingElement headingElement =>
@@ -125,25 +125,6 @@ public static class ModularMarkdownRendererExtensions
         }
         
         return inlineControl;
-    }
-
-    static Control? RenderParagraph(
-        IModularMarkdownRenderer markdownRenderer,
-        Control markdownControl,
-        ParagraphElement paragraphElement)
-    {
-        if (paragraphElement.Inlines is [ImageElement imageElement])
-            return markdownRenderer.ImageRenderer.RenderImage(markdownRenderer, markdownControl, imageElement);
-        
-        var textBlock = new TextBlock
-        {
-            TextWrapping = TextWrapping.Wrap
-        };
-
-        foreach (var inlineElement in paragraphElement.Inlines)
-            markdownRenderer.RenderInlineElement(markdownControl, textBlock, inlineElement);
-
-        return textBlock;
     }
 
     static void TryAddInline(TextBlock textBlock, Control? inlineControl)

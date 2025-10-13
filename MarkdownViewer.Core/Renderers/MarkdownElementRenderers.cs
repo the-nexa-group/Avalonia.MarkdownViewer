@@ -7,6 +7,7 @@ namespace MarkdownViewer.Core.Renderers;
 public interface ITextRenderer
 {
     Control? RenderText(IModularMarkdownRenderer markdownRenderer, Control markdownControl, TextElement element);
+    Control? RenderParagraph(IModularMarkdownRenderer markdownRenderer, Control markdownControl, ParagraphElement element);
     Control? RenderHeading(IModularMarkdownRenderer markdownRenderer, Control markdownControl, HeadingElement element);
     Control? RenderEmphasis(IModularMarkdownRenderer markdownRenderer, Control markdownControl, EmphasisElement element);
 }

@@ -5,7 +5,7 @@ public static class DefaultClasses
     public const string Markdown = "Markdown";
     public const string Block = "Block";
     public const string Inline = "Inline";
-    public const string Text = "Text";
+    public const string Paragraph = "Paragraph";
     public const string H1 = "H1";
     public const string H2 = "H2";
     public const string H3 = "H3";

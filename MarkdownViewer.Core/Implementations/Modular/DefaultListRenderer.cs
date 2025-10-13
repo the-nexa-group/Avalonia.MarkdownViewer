@@ -30,15 +30,9 @@ public class DefaultListRenderer : IListRenderer, ITaskListRenderer
             string bulletText = element.IsOrdered
                 ? $"{element.Items.IndexOf(item) + 1}."
                 : (item.IndentationLevel == 0 ? "•" : "◦");
-            
-            var bullet = new TextBlock
-            {
-                Classes = { DefaultClasses.Markdown, DefaultClasses.List, DefaultClasses.ListBullet },
-                Text = bulletText,
-                Width = 20,
-                TextAlignment = TextAlignment.Right,
-                VerticalAlignment = VerticalAlignment.Top
-            };
+
+            var bullet = DefaultUtils.CreateTextBlock(bulletText,
+                [DefaultClasses.Markdown, DefaultClasses.List, DefaultClasses.ListBullet]);
             
             var contentPanel = new StackPanel
             {
@@ -46,7 +40,7 @@ public class DefaultListRenderer : IListRenderer, ITaskListRenderer
                 Spacing = 5
             };
             
-            var textBlock = DefaultUtils.CreateTextBlock(null, [DefaultClasses.Markdown, DefaultClasses.List, DefaultClasses.Text]);
+            var textBlock = DefaultUtils.CreateTextBlock(null, [DefaultClasses.Markdown, DefaultClasses.List]);
             textBlock.VerticalAlignment = VerticalAlignment.Top;
             
             foreach (MarkdownElement inline in item.Inlines)

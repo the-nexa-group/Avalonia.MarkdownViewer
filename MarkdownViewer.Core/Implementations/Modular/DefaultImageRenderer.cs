@@ -38,7 +38,14 @@ public class DefaultImageRenderer : IImageRenderer
         };
 
         LoadImageAsync(img, element.Source);
-        return img;
+        
+        // Wrap the image in a border so it's easier to add other styling on the image,
+        // such as clipping and corner radius.
+        return new Border
+        {
+            Classes = { DefaultClasses.Markdown, DefaultClasses.Image },
+            Child = img
+        };
     }
     
     private async void LoadImageAsync(Image img, string source)

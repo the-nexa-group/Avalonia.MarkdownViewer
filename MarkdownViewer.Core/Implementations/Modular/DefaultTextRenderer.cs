@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Media;
 using MarkdownViewer.Core.Elements;
 using MarkdownViewer.Core.Renderers;
 
@@ -10,7 +11,20 @@ public class DefaultTextRenderer :
 {
     public Control? RenderText(IModularMarkdownRenderer markdownRenderer, Control markdownControl, TextElement element)
     {
-        return DefaultUtils.CreateTextBlock(element.Text, [DefaultClasses.Markdown, DefaultClasses.Text]);
+        return DefaultUtils.CreateTextBlock(element.Text, [DefaultClasses.Markdown]);
+    }
+
+    public Control? RenderParagraph(IModularMarkdownRenderer markdownRenderer, Control markdownControl, ParagraphElement element)
+    {
+        if (element.Inlines is [ImageElement imageElement])
+            return markdownRenderer.ImageRenderer.RenderImage(markdownRenderer, markdownControl, imageElement);
+        
+        var textBlock = DefaultUtils.CreateTextBlock(null, [DefaultClasses.Markdown, DefaultClasses.Paragraph]);
+
+        foreach (var inlineElement in element.Inlines)
+            markdownRenderer.RenderInlineElement(markdownControl, textBlock, inlineElement);
+
+        return textBlock;
     }
 
     public Control? RenderHeading(IModularMarkdownRenderer markdownRenderer, Control markdownControl, HeadingElement element)
@@ -30,7 +44,13 @@ public class DefaultTextRenderer :
     
     public Control? RenderEmphasis(IModularMarkdownRenderer markdownRenderer, Control markdownControl, EmphasisElement element)
     {
-        throw new NotImplementedException();
+        var textBlock = DefaultUtils.CreateTextBlock(element.Text, [DefaultClasses.Markdown]);
+        if (element.IsStrong)
+            textBlock.FontWeight = FontWeight.Bold;
+        if (element.IsItalic)
+            textBlock.FontStyle = FontStyle.Italic;
+
+        return textBlock;
     }
     
     public Control? RenderQuote(IModularMarkdownRenderer markdownRenderer, Control markdownControl, QuoteElement element)

@@ -83,6 +83,7 @@ namespace MarkdownViewer.Core.Elements
     {
         public required string Text { get; set; }
         public bool IsStrong { get; set; }
+        public bool IsItalic { get; set; }
     }
 
     public class CodeInlineElement : MarkdownElement

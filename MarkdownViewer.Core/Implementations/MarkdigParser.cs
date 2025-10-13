@@ -413,7 +413,8 @@ namespace MarkdownViewer.Core.Implementations
                     {
                         RawText = emphasis.ToString() ?? string.Empty,
                         Text = ProcessInlineElements(emphasis),
-                        IsStrong = emphasis.DelimiterCount == 2
+                        IsStrong = emphasis.DelimiterCount is 2 or 3,
+                        IsItalic = emphasis.DelimiterCount is 1 or 3,
                     },
                 CodeInline code
                     => new CodeInlineElement
